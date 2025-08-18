@@ -1,401 +1,902 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8" />
+<meta charset="UTF-8" />
+<title>Suggestion JSON Editor — semplice</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Manuale JSON – SOLO Payload (Suggestion schema)</title>
 <style>
-  :root{--bg:#0b0d10;--panel:#11151a;--muted:#8a98a9;--txt:#e6eef7;--accent:#41a4ff;--accent-2:#00c7a5;--warn:#ffcc00;--bad:#ff6b6b;--good:#1ecb7b;--card:#0f1318;--shadow:0 10px 30px rgba(0,0,0,.35);--border:1px solid rgba(255,255,255,.08)}
-  .light{--bg:#f6f8fb;--panel:#fff;--muted:#5a6674;--txt:#0d1117;--accent:#0b74ff;--accent-2:#00a38c;--warn:#b58900;--bad:#d7263d;--good:#0f915a;--card:#fff;--shadow:0 8px 24px rgba(0,0,0,.08);--border:1px solid rgba(0,0,0,.08)}
+  :root{--bg:#0b1020;--card:#141a2e;--muted:#9fb0d3;--accent:#4aa3ff;--ok:#3cc26b;--warn:#ffcc00;--err:#ff5a5a;--mono:#101623}
   *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
-  a{color:var(--accent);text-decoration:none}
-  a:hover{text-decoration:underline}
-  .layout{display:grid;grid-template-columns:300px 1fr;gap:16px;max-width:1400px;margin:0 auto;padding:20px}
-  header{grid-column:1/3;background:linear-gradient(120deg,var(--panel),rgba(65,164,255,.08));border:var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
-  h1{margin:0 0 8px;font-size:28px;letter-spacing:.2px}
-  .lead{color:var(--muted);margin:0}
-  .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
-  .input, select, button{background:var(--panel);color:var(--txt);border:var(--border);border-radius:12px;padding:10px 12px;font:inherit}
-  button{cursor:pointer}
-  button.primary{background:var(--accent);color:#fff;border:none}
-  button.ghost{background:transparent;border:var(--border)}
-  .badge{display:inline-flex;gap:6px;align-items:center;border-radius:999px;border:var(--border);padding:2px 10px;color:var(--muted);font-size:12px}
-  .ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
-  .grid{display:grid;gap:16px}
+  body{margin:0;background:var(--bg);color:#e9eefc;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;line-height:1.35}
+  header{padding:16px 20px;border-bottom:1px solid #1e2746;position:sticky;top:0;background:linear-gradient(180deg,#0b1020,rgba(11,16,32,.9))}
+  header h1{margin:0;font-size:18px}
+  .wrap{display:grid;grid-template-columns:380px 1fr;gap:16px;padding:16px}
+  @media (max-width:1100px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid #1e2746;border-radius:10px}
+  .panel .head{padding:10px 14px;border-bottom:1px solid #1e2746;font-weight:600}
+  .panel .body{padding:12px}
+  .grid{display:grid;gap:8px}
   .two{grid-template-columns:1fr 1fr}
-  .card{background:var(--card);border:var(--border);border-radius:16px;box-shadow:var(--shadow);padding:16px}
-  .muted{color:var(--muted)}
-  pre{background:var(--panel);border:var(--border);border-radius:14px;padding:14px;overflow:auto}
-  .nav{position:sticky;top:20px;align-self:start;background:var(--panel);border:var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
-  .nav a{display:block;padding:8px 10px;border-radius:10px;color:var(--txt)}
-  .nav a:hover{background:rgba(255,255,255,.05)}
-  .section{scroll-margin-top:90px}
-  table{width:100%;border-collapse:collapse}
-  th,td{border-bottom:var(--border);padding:10px 8px;vertical-align:top}
-  th{text-align:left;color:var(--muted);font-weight:600}
-  .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:var(--border);font-size:12px}
-  .pill.req{background:rgba(255,107,107,.1);color:var(--bad)}
-  details{background:var(--card);border:var(--border);border-radius:14px;padding:12px}
-  .tabbar{display:flex;gap:8px;margin-bottom:12px}
-  .tabbar button.active{background:var(--accent);color:#fff;border:none}
-  .callout{border-left:4px solid var(--accent);padding:10px 12px;background:linear-gradient(90deg, rgba(65,164,255,.08), transparent);border-radius:8px}
-  .copy{float:right}
-  @media (max-width:1100px){.layout{grid-template-columns:1fr}}
+  .three{grid-template-columns:1fr 1fr 1fr}
+  label{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+  input,select,textarea{width:100%;padding:9px 10px;border-radius:8px;border:1px solid #223055;background:#0e1426;color:#e9eefc;font-size:14px}
+  textarea{min-height:76px;resize:vertical}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{padding:8px 10px;border-radius:8px;border:1px solid #223055;background:#0e1426;color:#e9eefc;cursor:pointer;font-size:13px}
+  .btn:hover{border-color:#2f467e}
+  .btn.acc{background:var(--accent);border-color:var(--accent);color:#03102a}
+  .btn.ok{background:var(--ok);border-color:var(--ok);color:#07140e}
+  .btn.warn{background:var(--warn);border-color:var(--warn);color:#241a00}
+  .btn.err{background:var(--err);border-color:var(--err);color:#280606}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #2a375f;color:#b9c7e8;font-size:11px;margin-left:8px}
+  .list{display:grid;gap:8px}
+  .card{border:1px dashed #2a375f;border-radius:10px;padding:10px}
+  .mono{background:var(--mono);border-radius:10px;padding:10px;white-space:pre;overflow:auto;line-height:1.25;font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;font-size:13px;max-height:52vh}
+  .help{font-size:12px;color:#b7c6ea}
+  .tiny{font-size:11px;color:#7d8db4}
+  .k{color:#95b5ff}
+  .v{color:#a8f0c6}
+  .errline{background:#361b24}
+  details{border:1px solid #1e2746;border-radius:8px;padding:8px}
+  summary{cursor:pointer;color:#bcd1ff}
+  .toolbar .btn{padding:6px 8px}
+  .sep{height:1px;background:#1e2746;margin:12px -12px}
 </style>
 </head>
 <body>
-<div class="layout">
-  <header>
-    <h1>Manuale – JSON <span class="muted">SOLO Payload</span></h1>
-    <p class="lead">Compila esclusivamente l'oggetto <strong>payload</strong> da incollare nel campo “Payload (JSON)”. I campi di testata si compilano nel form e NON vanno messi nel JSON.</p>
-    <div class="toolbar">
-      <button id="theme" class="ghost" aria-pressed="false" title="Tema chiaro/scuro">Tema</button>
-      <span class="badge">Formati: <code>isoDateTime</code> <small>YYYY-MM-DDTHH:mm:ss</small> · <code>isoDate</code> <small>YYYY-MM-DD</small></span>
-    </div>
-  </header>
+<header>
+  <h1>Suggestion JSON Editor <span class="badge">schema 2020-12</span></h1>
+</header>
 
-  <nav class="nav">
-    <strong>Sezioni</strong>
-    <a href="#note">Cosa NON mettere nel JSON</a>
-    <a href="#defs">Definizioni comuni</a>
-    <a href="#payloads">Campi payload per tipo</a>
-    <a href="#examples">Esempi di payload</a>
-    <a href="#generator">Generatore payload</a>
-    <a href="#validator">Validatore payload</a>
-  </nav>
-
-  <main class="grid" style="gap:24px">
-
-    <section id="note" class="section card">
-      <h2>Cosa NON inserire nel JSON</h2>
-      <div class="callout">
-        Compila nel form e <u>non</u> nel payload: <code>type</code>, <code>title</code>, <code>summary</code>, <code>status</code>, <code>priority</code>, <code>published_at</code>, <code>partner_ids</code>. Il campo “Associa Partner” gestisce i partner. Il payload contiene SOLO i dettagli specifici.
+<div class="wrap">
+  <!-- LEFT: FORM -->
+  <section class="panel">
+    <div class="head">Campi principali</div>
+    <div class="body grid">
+      <div class="grid two">
+        <label>id <span class="tiny">intero ≥ 1, solo lettura se presente</span>
+          <input id="id" type="number" min="1" placeholder="opzionale" />
+        </label>
+        <label>type
+          <select id="type">
+            <option value="event">event</option>
+            <option value="collaboration">collaboration</option>
+            <option value="announcement">announcement</option>
+            <option value="news">news</option>
+          </select>
+        </label>
       </div>
-    </section>
+      <label>title <span class="tiny">[1..140]</span>
+        <input id="title" maxlength="140" placeholder="Titolo" />
+      </label>
+      <label>summary <span class="tiny">Markdown inline sicuro, max 300</span>
+        <textarea id="summary" maxlength="300" placeholder="Sintesi breve"></textarea>
+      </label>
 
-    <section id="defs" class="section card">
-      <h2>Definizioni comuni</h2>
-      <details open><summary><strong>Formati</strong></summary>
-        <table>
-          <tr><td>isoDateTime</td><td>stringa <code>YYYY-MM-DDTHH:mm:ss</code></td></tr>
-          <tr><td>isoDate</td><td>stringa <code>YYYY-MM-DD</code></td></tr>
-          <tr><td>timezone</td><td>stringa IANA (es. <code>Europe/Rome</code>)</td></tr>
-          <tr><td>url</td><td>URL valida (max 2048)</td></tr>
-          <tr><td>email</td><td>pattern e-mail</td></tr>
-          <tr><td>tag</td><td>1–24 caratteri; <em>tags</em> è un array di tag unici</td></tr>
-        </table>
-      </details>
+      <div class="grid three">
+        <label>status
+          <select id="status">
+            <option value="">(default: draft)</option>
+            <option>draft</option><option>approved</option><option>published</option><option>archived</option>
+          </select>
+        </label>
+        <label>priority <span class="tiny">[-10..10]</span>
+          <input id="priority" type="number" min="-10" max="10" step="1" placeholder="0" />
+        </label>
+        <label>published_at <span class="tiny">YYYY-MM-DDTHH:mm</span>
+          <input id="published_at" placeholder="2025-08-18T09:30" />
+        </label>
+      </div>
 
-      <details><summary><strong>Oggetti riutilizzabili</strong></summary>
-        <table>
-          <tr><th>Oggetto</th><th>Campi</th></tr>
-          <tr><td>seo</td><td>slug (3–80), keywords[], image(url)</td></tr>
-          <tr><td>attachment</td><td>label(1–60), url, type(pdf|image|doc|sheet|other)</td></tr>
-          <tr><td>mediaImage</td><td>type:"image", url, caption(≤160), alt(≥1)</td></tr>
-          <tr><td>mediaVideo</td><td>type:"video", url, caption(≤160), provider(youtube|vimeo|file)</td></tr>
-          <tr><td>mediaGallery</td><td>type:"gallery", items[ mediaImage|mediaVideo ] (≥1)</td></tr>
-          <tr><td>link</td><td>label(1–60), url, rel, external(bool)</td></tr>
-          <tr><td>contact</td><td>name(obbl.), role, email, url, avatar_url</td></tr>
-          <tr><td>venue</td><td>name(obbl.), address, lat(-90..90), lon(-180..180), room, map_url</td></tr>
-          <tr><td>registration</td><td>required(bool, obbl.), url, deadline(isoDateTime)</td></tr>
-          <tr><td>livestream</td><td>enabled(bool, obbl.), platform, url</td></tr>
-          <tr><td>agendaItem</td><td>time(HH:mm), title, speakers[]</td></tr>
-          <tr><td>speaker</td><td>name(obbl.), affiliation, bio, avatar_url</td></tr>
-          <tr><td>tickets</td><td>free(bool, obbl.), capacity≥0, sold≥0, price_eur≥0</td></tr>
-          <tr><td>milestone</td><td>date(isoDate), title, desc</td></tr>
-          <tr><td>timeline</td><td>start(isoDate), end(isoDate), milestones[]</td></tr>
-        </table>
-      </details>
-    </section>
-
-    <section id="payloads" class="section card">
-      <h2>Campi del payload</h2>
-      <div class="tabbar" role="tablist">
-        <button class="active" role="tab" data-tab="event">event</button>
-        <button role="tab" data-tab="collaboration">collaboration</button>
-        <button role="tab" data-tab="announcement">announcement</button>
-        <button role="tab" data-tab="news">news</button>
-      </div>
-      <div id="tab-event">
-        <table>
-          <tr><th>Campo</th><th>Tipo</th><th>Regole</th><th>Descrizione</th></tr>
-          <tr><td>schema_version</td><td>integer</td><td>≥1 (default 1)</td><td>Versione</td></tr>
-          <tr><td>tags</td><td>array&lt;tag&gt;</td><td>unici</td><td>Etichette</td></tr>
-          <tr><td>seo</td><td>seo</td><td>—</td><td>Metadati</td></tr>
-          <tr><td>attachments</td><td>array&lt;attachment&gt;</td><td>—</td><td>Allegati</td></tr>
-          <tr><td>media</td><td>media</td><td>—</td><td>Immagini/Video</td></tr>
-          <tr><td>links</td><td>array&lt;link&gt;</td><td>—</td><td>Link</td></tr>
-          <tr><td>contacts</td><td>array&lt;contact&gt;</td><td>—</td><td>Contatti</td></tr>
-          <tr><td>notes_md</td><td>string</td><td>markdown</td><td>Note</td></tr>
-          <tr><td>start_at</td><td>isoDateTime</td><td>—</td><td>Inizio</td></tr>
-          <tr><td>end_at</td><td>isoDateTime</td><td>—</td><td>Fine</td></tr>
-          <tr><td>timezone</td><td>timezone</td><td>IANA</td><td>Fuso</td></tr>
-          <tr><td>venue</td><td>venue</td><td>—</td><td>Luogo</td></tr>
-          <tr><td>online</td><td>boolean</td><td>—</td><td>Evento online</td></tr>
-          <tr><td>livestream</td><td>livestream</td><td>—</td><td>Streaming</td></tr>
-          <tr><td>registration</td><td>registration</td><td>—</td><td>Registrazione</td></tr>
-          <tr><td>agenda</td><td>array&lt;agendaItem&gt;</td><td>—</td><td>Programma</td></tr>
-          <tr><td>speakers</td><td>array&lt;speaker&gt;</td><td>—</td><td>Relatori</td></tr>
-          <tr><td>tickets</td><td>tickets</td><td>—</td><td>Biglietti</td></tr>
-        </table>
-        <p class="muted">Se uno tra <code>start_at</code> e <code>end_at</code> è presente, deve esserlo anche l’altro.</p>
-      </div>
-      <div id="tab-collaboration" hidden>
-        <table>
-          <tr><th>Campo</th><th>Tipo</th><th>Regole</th><th>Descrizione</th></tr>
-          <tr><td>schema_version</td><td>integer</td><td>≥1</td><td>Versione</td></tr>
-          <tr><td>tags, seo, attachments, media, links, contacts, notes_md</td><td>vari</td><td>—</td><td>Campi comuni</td></tr>
-          <tr><td>goal</td><td>string</td><td>—</td><td>Obiettivo</td></tr>
-          <tr><td>work_packages</td><td>array&lt;string&gt;</td><td>—</td><td>Pacchetti</td></tr>
-          <tr><td>timeline</td><td>timeline</td><td>—</td><td>Pianificazione</td></tr>
-          <tr><td>requirements.tech</td><td>array&lt;string&gt;</td><td>—</td><td>Requisiti tecnici</td></tr>
-          <tr><td>requirements.non_tech</td><td>array&lt;string&gt;</td><td>—</td><td>Requisiti non tecnici</td></tr>
-          <tr><td>funding.status</td><td>string</td><td>secured|in_progress|needed</td><td>Stato</td></tr>
-          <tr><td>funding.sources</td><td>array&lt;string&gt;</td><td>—</td><td>Fonti</td></tr>
-        </table>
-      </div>
-      <div id="tab-announcement" hidden>
-        <table>
-          <tr><th>Campo</th><th>Tipo</th><th>Regole</th><th>Descrizione</th></tr>
-          <tr><td>schema_version</td><td>integer</td><td>≥1</td><td>Versione</td></tr>
-          <tr><td>tags, seo, attachments, media, links, contacts, notes_md</td><td>vari</td><td>—</td><td>Campi comuni</td></tr>
-          <tr><td>changelog</td><td>array&lt;string&gt;</td><td>—</td><td>Novità</td></tr>
-          <tr><td>breaking_changes</td><td>array&lt;string&gt;</td><td>—</td><td>Modifiche critiche</td></tr>
-          <tr><td>docs_url</td><td>url</td><td>—</td><td>Documentazione</td></tr>
-          <tr><td>rollout.type</td><td>string</td><td>global|gradual|canary</td><td>Tipo</td></tr>
-          <tr><td>rollout.percent</td><td>integer</td><td>0–100</td><td>Percentuale</td></tr>
-        </table>
-      </div>
-      <div id="tab-news" hidden>
-        <table>
-          <tr><th>Campo</th><th>Tipo</th><th>Regole</th><th>Descrizione</th></tr>
-          <tr><td>schema_version</td><td>integer</td><td>≥1</td><td>Versione</td></tr>
-          <tr><td>tags, seo, attachments, media, links, contacts, notes_md</td><td>vari</td><td>—</td><td>Campi comuni</td></tr>
-          <tr><td>body_md</td><td>string</td><td>markdown</td><td>Corpo</td></tr>
-          <tr><td>quotes[].author</td><td>string</td><td>—</td><td>Autore</td></tr>
-          <tr><td>quotes[].text</td><td>string</td><td>—</td><td>Citazione</td></tr>
-          <tr><td>media</td><td>media</td><td>—</td><td>Media</td></tr>
-          <tr><td>seo</td><td>seo</td><td>—</td><td>SEO</td></tr>
-        </table>
-      </div>
-    </section>
-
-    <section id="examples" class="section card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h2 style="margin:0">Esempi di <u>payload</u> pronti</h2>
-        <div>
-          <button class="ghost" id="copyAllExamples">Copia tutti</button>
+      <details>
+        <summary>Partner IDs <span class="tiny">array di interi unici ≥ 1</span></summary>
+        <div class="row toolbar" style="margin-top:8px">
+          <input id="pid_val" type="number" min="1" placeholder="es. 12" />
+          <button class="btn" onclick="addPartner()">Aggiungi</button>
+          <button class="btn warn" onclick="clearPartners()">Svuota</button>
         </div>
-      </div>
+        <div id="partner_list" class="list" style="margin-top:8px"></div>
+      </details>
 
       <details open>
-        <summary><strong>event</strong> – completo</summary>
-        <button class="copy" data-copy="#ex-event">Copia</button>
-<pre id="ex-event">{
-  "schema_version": 1,
-  "tags": ["workshop", "marine"],
-  "seo": {"slug": "workshop-biologia-marina", "keywords": ["biologia", "monitoraggio"], "image": "https://example.org/img/cover.jpg"},
-  "attachments": [{"label": "Programma PDF", "url": "https://example.org/program.pdf", "type": "pdf"}],
-  "media": [
-    {"type": "image", "url": "https://example.org/img/locandina.jpg", "caption": "Locandina", "alt": "Locandina workshop"},
-    {"type": "video", "url": "https://video.example.org/stream.mp4", "provider": "file", "caption": "Promo"}
-  ],
-  "links": [{"label": "Sito evento", "url": "https://example.org/evento", "external": true}],
-  "contacts": [{"name": "Segreteria", "email": "info@example.org"}],
-  "notes_md": "Note interne…",
+        <summary>Payload comune e specifico</summary>
+        <div class="grid two" style="margin-top:8px">
+          <label>tags (comma)
+            <input id="tags" placeholder="ai, marine, data" />
+          </label>
+          <label>notes_md
+            <input id="notes_md" placeholder="Note libere in Markdown" />
+          </label>
+        </div>
 
-  "start_at": "2025-09-12T10:00:00",
-  "end_at": "2025-09-12T16:00:00",
-  "timezone": "Europe/Rome",
-  "venue": {"name": "Università di Napoli", "address": "Via Partenope 36, Napoli", "lat": 40.83, "lon": 14.25, "room": "Aula Magna", "map_url": "https://maps.example.org/venue"},
-  "online": false,
-  "livestream": {"enabled": true, "platform": "YouTube", "url": "https://youtube.com/live/abc"},
-  "registration": {"required": true, "url": "https://tickets.example.org/reg", "deadline": "2025-09-10T18:00:00"},
-  "agenda": [
-    {"time": "10:00", "title": "Apertura", "speakers": ["Comitato"]},
-    {"time": "10:30", "title": "Tecniche di eDNA", "speakers": ["Dott.ssa Rossi", "Dott. Bianchi"]}
-  ],
-  "speakers": [
-    {"name": "Dott.ssa Maria Rossi", "affiliation": "UniNapoli", "bio": "Ricercatrice in ecologia marina"},
-    {"name": "Dott. Luca Bianchi", "affiliation": "CNR", "bio": "Modelli di habitat"}
-  ],
-  "tickets": {"free": false, "capacity": 200, "sold": 57, "price_eur": 25}
-}
-</pre>
-      </details>
-
-      <details>
-        <summary><strong>collaboration</strong> – proposta</summary>
-        <button class="copy" data-copy="#ex-collab">Copia</button>
-<pre id="ex-collab">{
-  "schema_version": 1,
-  "tags": ["collab", "hardware"],
-  "seo": {"slug": "rete-sensori-costieri"},
-  "links": [{"label": "Repository", "url": "https://example.org/repo", "external": true}],
-  "goal": "Sviluppo di una rete di sensori meteo-marine open-source",
-  "work_packages": ["Progettazione HW", "Firmware", "Integrazione API", "Deployment"],
-  "timeline": {
-    "start": "2025-10-01",
-    "end": "2026-03-31",
-    "milestones": [
-      {"date": "2025-11-15", "title": "Prototipo v1"},
-      {"date": "2026-01-15", "title": "Test costieri"}
-    ]
-  },
-  "requirements": {
-    "tech": ["ESP32", "LoRaWAN", "Flask API"],
-    "non_tech": ["Permessi locali", "Contratti hosting"]
-  },
-  "funding": {"status": "in_progress", "sources": ["EIC", "Fondazioni"]}
-}
-</pre>
-      </details>
-
-      <details>
-        <summary><strong>announcement</strong> – rilascio</summary>
-        <button class="copy" data-copy="#ex-ann">Copia</button>
-<pre id="ex-ann">{
-  "schema_version": 1,
-  "tags": ["release", "admin"],
-  "changelog": [
-    "Creazione eventi semplificata",
-    "Editor markdown migliorato"
-  ],
-  "breaking_changes": ["Aggiornare le chiavi API per l'upload"],
-  "docs_url": "https://docs.example.org/console",
-  "rollout": {"type": "gradual", "percent": 25}
-}
-</pre>
-      </details>
-
-      <details>
-        <summary><strong>news</strong> – comunicato</summary>
-        <button class="copy" data-copy="#ex-news">Copia</button>
-<pre id="ex-news">{
-  "schema_version": 1,
-  "tags": ["edna", "dataset"],
-  "seo": {"slug": "edna-primi-risultati", "keywords": ["edna", "monitoraggio"]},
-  "body_md": "Abbiamo rilasciato i primi risultati del progetto **eDNA**…",
-  "quotes": [
-    {"author": "Coordinatore Progetto", "text": "Risultati incoraggianti"}
-  ],
-  "media": [{"type": "image", "url": "https://example.org/edna.jpg", "alt": "Campionamento"}]
-}
-</pre>
-      </details>
-    </section>
-
-    <section id="generator" class="section card">
-      <h2>Generatore di payload</h2>
-      <div class="grid two">
-        <div>
-          <label>Tipo</label>
-          <select id="gen-type">
-            <option value="event">event</option>
-            <option value="collaboration">collaboration</option>
-            <option value="announcement">announcement</option>
-            <option value="news">news</option>
-          </select>
-          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="primary" id="gen-build">Crea scheletro</button>
-            <button id="gen-pretty">Formatta</button>
-            <button id="gen-minify">Minifica</button>
-            <button class="ghost" id="gen-copy">Copia</button>
+        <details style="margin-top:8px">
+          <summary>SEO</summary>
+          <div class="grid two" style="margin-top:8px">
+            <label>slug <input id="seo_slug" maxlength="80" placeholder="min 3, max 80" /></label>
+            <label>keywords (comma) <input id="seo_keywords" placeholder="kw1, kw2" /></label>
           </div>
-        </div>
-        <div>
-          <textarea id="gen-output" class="input" style="width:100%;min-height:220px" spellcheck="false" placeholder="Qui apparirà il payload…"></textarea>
-        </div>
-      </div>
-    </section>
+          <label>image URL <input id="seo_image" placeholder="https://..." /></label>
+        </details>
 
-    <section id="validator" class="section card">
-      <h2>Validatore di payload (controlli base)</h2>
-      <p class="muted">Seleziona il tipo per applicare le regole corrette. Non sostituisce un validatore JSON Schema completo.</p>
-      <div class="grid two">
-        <div>
-          <label>Tipo</label>
-          <select id="val-type">
-            <option value="event">event</option>
-            <option value="collaboration">collaboration</option>
-            <option value="announcement">announcement</option>
-            <option value="news">news</option>
-          </select>
-          <textarea id="val-input" class="input" style="width:100%;min-height:240px;margin-top:8px" spellcheck="false" placeholder="Incolla qui il payload da verificare…"></textarea>
-        </div>
-        <div>
-          <div style="display:flex;gap:8px;margin-bottom:8px">
-            <button class="primary" id="val-run">Valida</button>
-            <button class="ghost" id="val-pretty">Formatta</button>
-            <button class="ghost" id="val-minify">Minifica</button>
+        <div class="sep"></div>
+
+        <details>
+          <summary>Attachments</summary>
+          <div class="row toolbar" style="margin-top:8px">
+            <input id="att_label" placeholder="label" />
+            <input id="att_url" placeholder="https://..." />
+            <select id="att_type">
+              <option value="">(auto/omesso)</option>
+              <option>pdf</option><option>image</option><option>doc</option><option>sheet</option><option>other</option>
+            </select>
+            <button class="btn" onclick="addAttachment()">Aggiungi</button>
+            <button class="btn warn" onclick="clearList('attachments')">Svuota</button>
           </div>
-          <div id="val-result" class="card" style="min-height:120px"></div>
-        </div>
-      </div>
-    </section>
+          <div id="attachments" class="list" style="margin-top:8px"></div>
+        </details>
 
-  </main>
+        <details>
+          <summary>Media</summary>
+          <div class="row toolbar" style="margin-top:8px">
+            <select id="media_kind">
+              <option value="image">image</option>
+              <option value="video">video</option>
+              <option value="gallery">gallery</option>
+            </select>
+            <input id="media_url" placeholder="https://... (image/video)" />
+            <input id="media_caption" placeholder="caption (≤160)" />
+            <input id="media_alt" placeholder="alt (solo image)" />
+            <select id="media_provider">
+              <option value="">provider (video)</option>
+              <option>youtube</option><option>vimeo</option><option>file</option>
+            </select>
+            <button class="btn" onclick="addMedia()">Aggiungi</button>
+            <button class="btn warn" onclick="clearList('media')">Svuota</button>
+          </div>
+          <div id="media" class="list" style="margin-top:8px"></div>
+
+          <details style="margin-top:8px">
+            <summary>Aggiungi elemento a una gallery esistente</summary>
+            <div class="row toolbar" style="margin-top:8px">
+              <input id="gal_index" type="number" min="0" placeholder="index gallery" />
+              <select id="gal_item_kind">
+                <option value="image">image</option>
+                <option value="video">video</option>
+              </select>
+              <input id="gal_item_url" placeholder="https://..." />
+              <input id="gal_item_caption" placeholder="caption (≤160)" />
+              <input id="gal_item_alt" placeholder="alt (solo image)" />
+              <select id="gal_item_provider">
+                <option value="">provider (video)</option>
+                <option>youtube</option><option>vimeo</option><option>file</option>
+              </select>
+              <button class="btn" onclick="addToGallery()">Inserisci</button>
+            </div>
+          </details>
+        </details>
+
+        <details>
+          <summary>Links</summary>
+          <div class="row toolbar" style="margin-top:8px">
+            <input id="link_label" placeholder="label" />
+            <input id="link_url" placeholder="https://..." />
+            <input id="link_rel" placeholder="rel" />
+            <label style="display:flex;align-items:center;gap:6px">
+              <input id="link_external" type="checkbox" /> external
+            </label>
+            <button class="btn" onclick="addLink()">Aggiungi</button>
+            <button class="btn warn" onclick="clearList('links')">Svuota</button>
+          </div>
+          <div id="links" class="list" style="margin-top:8px"></div>
+        </details>
+
+        <details>
+          <summary>Contacts</summary>
+          <div class="row toolbar" style="margin-top:8px">
+            <input id="c_name" placeholder="name *" />
+            <input id="c_role" placeholder="role" />
+            <input id="c_email" placeholder="email" />
+            <input id="c_url" placeholder="https://..." />
+            <input id="c_avatar" placeholder="avatar_url https://..." />
+            <button class="btn" onclick="addContact()">Aggiungi</button>
+            <button class="btn warn" onclick="clearList('contacts')">Svuota</button>
+          </div>
+          <div id="contacts" class="list" style="margin-top:8px"></div>
+        </details>
+
+        <div class="sep"></div>
+
+        <details id="type_event" open>
+          <summary>Payload specifico: event</summary>
+          <div class="grid two" style="margin-top:8px">
+            <label>start_at <span class="tiny">YYYY-MM-DDTHH:mm:ss</span><input id="ev_start" placeholder="2025-08-18T09:00:00" /></label>
+            <label>end_at <span class="tiny">YYYY-MM-DDTHH:mm:ss</span><input id="ev_end" placeholder="2025-08-18T17:00:00" /></label>
+          </div>
+          <div class="grid two">
+            <label>timezone <input id="ev_tz" placeholder="es. Europe/Rome" /></label>
+            <label>online <select id="ev_online"><option value="">(omit)</option><option>true</option><option>false</option></select></label>
+          </div>
+
+          <details style="margin-top:8px">
+            <summary>Venue</summary>
+            <div class="grid two" style="margin-top:8px">
+              <label>name * <input id="v_name" /></label>
+              <label>address <input id="v_addr" /></label>
+            </div>
+            <div class="grid three">
+              <label>lat <input id="v_lat" type="number" step="any" /></label>
+              <label>lon <input id="v_lon" type="number" step="any" /></label>
+              <label>room <input id="v_room" /></label>
+            </div>
+            <label>map_url <input id="v_map" placeholder="https://..." /></label>
+            <div class="row" style="margin-top:8px">
+              <button class="btn" onclick="setVenue()">Imposta venue</button>
+              <button class="btn warn" onclick="removeVenue()">Rimuovi venue</button>
+            </div>
+          </details>
+
+          <details style="margin-top:8px">
+            <summary>Livestream</summary>
+            <div class="grid two" style="margin-top:8px">
+              <label>enabled <select id="ls_enabled"><option value="">(omit)</option><option>true</option><option>false</option></select></label>
+              <label>platform <input id="ls_platform" /></label>
+            </div>
+            <label>url <input id="ls_url" placeholder="https://..." /></label>
+            <div class="row" style="margin-top:8px">
+              <button class="btn" onclick="setLivestream()">Imposta livestream</button>
+              <button class="btn warn" onclick="removeLivestream()">Rimuovi livestream</button>
+            </div>
+          </details>
+
+          <details style="margin-top:8px">
+            <summary>Registration</summary>
+            <div class="grid two" style="margin-top:8px">
+              <label>required <select id="rg_required"><option value="">(omit)</option><option>true</option><option>false</option></select></label>
+              <label>url <input id="rg_url" placeholder="https://..." /></label>
+            </div>
+            <label>deadline <span class="tiny">YYYY-MM-DDTHH:mm:ss</span><input id="rg_deadline" placeholder="2025-08-31T23:59:59" /></label>
+            <div class="row" style="margin-top:8px">
+              <button class="btn" onclick="setRegistration()">Imposta registration</button>
+              <button class="btn warn" onclick="removeRegistration()">Rimuovi registration</button>
+            </div>
+          </details>
+
+          <details style="margin-top:8px">
+            <summary>Agenda</summary>
+            <div class="row toolbar" style="margin-top:8px">
+              <input id="ag_time" placeholder="HH:mm" />
+              <input id="ag_title" placeholder="titolo *" />
+              <input id="ag_speakers" placeholder="speakers (comma)" />
+              <button class="btn" onclick="addAgenda()">Aggiungi</button>
+              <button class="btn warn" onclick="clearList('agenda')">Svuota</button>
+            </div>
+            <div id="agenda" class="list" style="margin-top:8px"></div>
+          </details>
+
+          <details style="margin-top:8px">
+            <summary>Speakers</summary>
+            <div class="row toolbar" style="margin-top:8px">
+              <input id="sp_name" placeholder="name *" />
+              <input id="sp_aff" placeholder="affiliation" />
+              <input id="sp_bio" placeholder="bio" />
+              <input id="sp_avatar" placeholder="avatar_url https://..." />
+              <button class="btn" onclick="addSpeaker()">Aggiungi</button>
+              <button class="btn warn" onclick="clearList('speakers')">Svuota</button>
+            </div>
+            <div id="speakers" class="list" style="margin-top:8px"></div>
+          </details>
+
+          <details style="margin-top:8px">
+            <summary>Tickets</summary>
+            <div class="grid two" style="margin-top:8px">
+              <label>free <select id="tk_free"><option value="">(omit)</option><option>true</option><option>false</option></select></label>
+              <label>capacity <input id="tk_capacity" type="number" min="0" /></label>
+            </div>
+            <div class="grid two">
+              <label>sold <input id="tk_sold" type="number" min="0" /></label>
+              <label>price_eur <input id="tk_price" type="number" min="0" step="any" /></label>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <button class="btn" onclick="setTickets()">Imposta tickets</button>
+              <button class="btn warn" onclick="removeTickets()">Rimuovi tickets</button>
+            </div>
+          </details>
+        </details>
+
+        <details id="type_collab">
+          <summary>Payload specifico: collaboration</summary>
+          <label>goal <input id="cl_goal" /></label>
+          <label>work_packages (comma) <input id="cl_wps" placeholder="WP1, WP2" /></label>
+          <details style="margin-top:8px">
+            <summary>Timeline</summary>
+            <div class="grid two" style="margin-top:8px">
+              <label>start <input id="cl_tl_start" placeholder="YYYY-MM-DD" /></label>
+              <label>end <input id="cl_tl_end" placeholder="YYYY-MM-DD" /></label>
+            </div>
+            <div class="row toolbar" style="margin-top:8px">
+              <input id="ms_date" placeholder="YYYY-MM-DD" />
+              <input id="ms_title" placeholder="titolo *" />
+              <input id="ms_desc" placeholder="desc" />
+              <button class="btn" onclick="addMilestone()">Aggiungi milestone</button>
+              <button class="btn warn" onclick="clearList('milestones')">Svuota milestones</button>
+            </div>
+            <div id="milestones" class="list" style="margin-top:8px"></div>
+          </details>
+          <details style="margin-top:8px">
+            <summary>Requirements</summary>
+            <div class="grid two" style="margin-top:8px">
+              <label>tech (comma) <input id="rq_tech" placeholder="Python, R, GEE" /></label>
+              <label>non_tech (comma) <input id="rq_nontech" placeholder="Comunicazione, Project mgmt" /></label>
+            </div>
+          </details>
+          <details style="margin-top:8px">
+            <summary>Funding</summary>
+            <div class="grid two" style="margin-top:8px">
+              <label>status
+                <select id="fd_status">
+                  <option value="">(omit)</option>
+                  <option>secured</option><option>in_progress</option><option>needed</option>
+                </select>
+              </label>
+              <label>sources (comma) <input id="fd_sources" placeholder="Horizon, PRIN" /></label>
+            </div>
+          </details>
+        </details>
+
+        <details id="type_announce">
+          <summary>Payload specifico: announcement</summary>
+          <label>changelog (righe → voci)
+            <textarea id="an_changelog" placeholder="Una voce per riga"></textarea>
+          </label>
+          <label>breaking_changes (righe → voci)
+            <textarea id="an_breaking" placeholder="Una voce per riga"></textarea>
+          </label>
+          <div class="grid two">
+            <label>docs_url <input id="an_docs" placeholder="https://..." /></label>
+            <label>rollout.type
+              <select id="an_roll_type"><option value="">(omit)</option><option>global</option><option>gradual</option><option>canary</option></select>
+            </label>
+          </div>
+          <label>rollout.percent <input id="an_roll_pct" type="number" min="0" max="100" /></label>
+        </details>
+
+        <details id="type_news">
+          <summary>Payload specifico: news</summary>
+          <label>body_md <textarea id="nw_body" placeholder="Corpo in Markdown"></textarea></label>
+          <details style="margin-top:8px">
+            <summary>Quotes</summary>
+            <div class="row toolbar" style="margin-top:8px">
+              <input id="q_author" placeholder="author *" />
+              <input id="q_text" placeholder="text *" />
+              <button class="btn" onclick="addQuote()">Aggiungi</button>
+              <button class="btn warn" onclick="clearList('quotes')">Svuota</button>
+            </div>
+            <div id="quotes" class="list" style="margin-top:8px"></div>
+          </details>
+          <p class="help">Media e SEO per <span class="badge">news</span> si gestiscono sopra nelle sezioni “Media” e “SEO”.</p>
+        </details>
+      </details>
+    </div>
+  </section>
+
+  <!-- RIGHT: OUTPUT + TOOLBAR -->
+  <section class="panel">
+    <div class="head">Output JSON e strumenti</div>
+    <div class="body">
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn acc" onclick="build()">Costruisci JSON</button>
+        <button class="btn ok" onclick="copyJSON()">Copia</button>
+        <button class="btn" onclick="downloadJSON()">Scarica</button>
+        <button class="btn warn" onclick="loadSample()">Carica esempio</button>
+        <button class="btn err" onclick="resetAll()">Reset</button>
+      </div>
+      <pre id="out" class="mono">{}</pre>
+      <details style="margin-top:10px">
+        <summary>Linee guida rapide</summary>
+        <ul class="help">
+          <li><b>published_at</b> → formato <code>YYYY-MM-DDTHH:mm</code> senza timezone.</li>
+          <li><b>isoDateTime</b> (event.start_at/end_at, registration.deadline) → <code>YYYY-MM-DDTHH:mm:ss</code>.</li>
+          <li><b>tags</b> e liste “comma” accettano valori unici; spazi superflui rimossi.</li>
+          <li><b>media</b> supporta <i>image</i>, <i>video</i>, <i>gallery</i>. Usa la sezione “Aggiungi elemento a una gallery” per riempire <code>items</code>.</li>
+          <li><b>status</b> default <code>draft</code>. <b>priority</b> default <code>0</code>.</li>
+          <li>Il validatore incluso copre pattern e vincoli principali; per validazione formale usa JSON Schema 2020-12.</li>
+        </ul>
+      </details>
+    </div>
+  </section>
 </div>
 
 <script>
-(function(){
-  const $ = s=>document.querySelector(s); const $$ = s=>Array.from(document.querySelectorAll(s));
-  // Theme
-  $('#theme').addEventListener('click', e=>{ const on=document.documentElement.classList.toggle('light'); e.currentTarget.setAttribute('aria-pressed', String(on)); });
-
-  // Tabs
-  $$('.tabbar button').forEach(b=>b.addEventListener('click',()=>{ $$('.tabbar button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); ['event','collaboration','announcement','news'].forEach(k=>{ const el=$('#tab-'+k); el.hidden = (k!==b.dataset.tab); }); }));
-
-  // Copy helpers
-  function getText(sel){ const el=document.querySelector(sel); return el?el.textContent:''; }
-  $$('.copy').forEach(btn=>btn.addEventListener('click',()=>navigator.clipboard.writeText(getText(btn.dataset.copy))));
-  const all = ['#ex-event','#ex-collab','#ex-ann','#ex-news'];
-  document.getElementById('copyAllExamples')?.addEventListener('click',()=>{ const blocks=all.map(getText); navigator.clipboard.writeText(blocks.join('\n\n')); });
-
-  // Generator (payload only)
-  const genOut=document.getElementById('gen-output'); const genType=document.getElementById('gen-type');
-  const baseCommon = { schema_version:1 };
-  const skel = {
-    event: ()=>({ ...baseCommon, start_at:"2025-01-01T10:00:00", end_at:"2025-01-01T12:00:00", timezone:"Europe/Rome", venue:{ name:"Sede" }, online:false }),
-    collaboration: ()=>({ ...baseCommon, goal:"Obiettivo", work_packages:["WP1"], requirements:{ tech:[], non_tech:[] } }),
-    announcement: ()=>({ ...baseCommon, changelog:["Novità"], rollout:{ type:"global", percent:100 } }),
-    news: ()=>({ ...baseCommon, body_md:"Testo" })
+  // --- stato
+  const state = {
+    partner_ids: [],
+    payload: {
+      // common
+      schema_version: 1,
+      tags: [],
+      seo: {},
+      attachments: [],
+      media: [],
+      links: [],
+      contacts: [],
+      notes_md: "",
+      // specific (by type)
+      // event:
+      agenda: [],
+      speakers: [],
+      // collaboration:
+      timeline: {},
+      milestones: [],
+      // news:
+      quotes: []
+    },
+    venue: null,
+    livestream: null,
+    registration: null,
+    tickets: null
   };
-  document.getElementById('gen-build').addEventListener('click',()=>{ const t=genType.value; genOut.value = JSON.stringify(skel[t](), null, 2); });
-  document.getElementById('gen-pretty').addEventListener('click',()=>{ try{ genOut.value = JSON.stringify(JSON.parse(genOut.value), null, 2);}catch{} });
-  document.getElementById('gen-minify').addEventListener('click',()=>{ try{ genOut.value = JSON.stringify(JSON.parse(genOut.value)); }catch{} });
-  document.getElementById('gen-copy').addEventListener('click',()=>navigator.clipboard.writeText(genOut.value));
 
-  // Validator (payload-only)
-  const patt = { isoDateTime:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/, isoDate:/^\d{4}-\d{2}-\d{2}$/, time:/^[0-2]\d:[0-5]\d$/, email:/.+@.+\..+/ };
-  function vPayload(obj,type){ const e=[]; const add=(p,m)=>e.push({path:p,msg:m});
-    if(typeof obj!== 'object' || Array.isArray(obj) || obj===null){ add('$','Deve essere un oggetto'); return e; }
-    if('schema_version' in obj && (!Number.isInteger(obj.schema_version) || obj.schema_version<1)) add('schema_version','Intero ≥1');
-    if('tags' in obj){ if(!Array.isArray(obj.tags)) add('tags','Array'); else { const set=new Set(); obj.tags.forEach((t,i)=>{ if(typeof t!=='string'||t.length<1||t.length>24) add(`tags[${i}]`,'Stringa 1–24'); if(set.has(t)) add(`tags[${i}]`,'Duplicato'); set.add(t); }); }}
-    if('contacts' in obj){ if(!Array.isArray(obj.contacts)) add('contacts','Array'); else obj.contacts.forEach((c,i)=>{ if(typeof c.name!=='string'||!c.name) add(`contacts[${i}].name`,'Obbligatorio'); if('email' in c && !patt.email.test(c.email)) add(`contacts[${i}].email`,'Email non valida'); }); }
-    if(type==='event'){
-      const hasStart='start_at' in obj, hasEnd='end_at' in obj; if(hasStart^hasEnd) add('start_at|end_at','Entrambi obbligatori se uno è presente');
-      if(hasStart && !patt.isoDateTime.test(obj.start_at)) add('start_at','YYYY-MM-DDTHH:mm:ss');
-      if(hasEnd && !patt.isoDateTime.test(obj.end_at)) add('end_at','YYYY-MM-DDTHH:mm:ss');
-      if('agenda' in obj){ if(!Array.isArray(obj.agenda)) add('agenda','Array'); else obj.agenda.forEach((a,i)=>{ if(!patt.time.test(a.time||'')) add(`agenda[${i}].time`,'HH:mm'); if(typeof a.title!=='string'||!a.title) add(`agenda[${i}].title`,'Obbligatorio'); }); }
-      if('speakers' in obj){ if(!Array.isArray(obj.speakers)) add('speakers','Array'); else obj.speakers.forEach((s,i)=>{ if(typeof s.name!=='string'||!s.name) add(`speakers[${i}].name`,'Obbligatorio'); }); }
-      if('tickets' in obj){ const t=obj.tickets; if(typeof t!=='object'||t===null) add('tickets','Oggetto'); else if('free' in t && typeof t.free!=='boolean') add('tickets.free','Booleano'); }
-    }
-    if(type==='announcement'){
-      if('rollout' in obj){ const r=obj.rollout||{}; if('type' in r && !['global','gradual','canary'].includes(r.type)) add('rollout.type','Valore non valido'); if('percent' in r && (!Number.isInteger(r.percent)||r.percent<0||r.percent>100)) add('rollout.percent','0..100'); }
-    }
-    if(type==='collaboration'){
-      if('funding' in obj){ const f=obj.funding||{}; if('status' in f && !['secured','in_progress','needed'].includes(f.status)) add('funding.status','Valore non valido'); }
-    }
-    return e;
+  // --- util
+  const $ = (id)=>document.getElementById(id);
+  const cleanComma = (s)=> (s||"").split(",").map(x=>x.trim()).filter(Boolean);
+  const isURL = (u)=> /^https?:\/\/.{3,}/i.test(u||"");
+  const isEmail = (e)=> /.+@.+\..+/.test(e||"");
+  const isDTmm = (s)=> /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s||"");
+  const isDTss = (s)=> /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s||"");
+  const isDate = (s)=> /^\d{4}-\d{2}-\d{2}$/.test(s||"");
+  const isTZ = (s)=> (s||"").length>=3; // IANA minimo
+  const clampInt = (v,min,max,def)=> {
+    if(v === "" || v === null || v === undefined) return def;
+    v = parseInt(v,10);
+    if(Number.isNaN(v)) return def;
+    return Math.min(max,Math.max(min,v));
+  };
+  function renderList(id, arr, mapFn){
+    const box=$(id); box.innerHTML="";
+    arr.forEach((item,i)=>{
+      const el=document.createElement("div");
+      el.className="card";
+      el.innerHTML = mapFn(item,i);
+      box.appendChild(el);
+    });
   }
-  function render(list){ const box=document.getElementById('val-result'); if(!list.length){ box.innerHTML='<div class="badge ok">OK</div> Nessun errore (controlli base).'; box.style.borderLeft='4px solid var(--good)'; return;} const items=list.map(x=>`<li><code>${x.path}</code> — ${x.msg}</li>`).join(''); box.innerHTML=`<div class="badge bad">ERRORI</div><ul>${items}</ul>`; box.style.borderLeft='4px solid var(--bad)'; }
-  document.getElementById('val-run').addEventListener('click',()=>{ try{ const o=JSON.parse(document.getElementById('val-input').value); render(vPayload(o,document.getElementById('val-type').value)); }catch(err){ render([{path:'$',msg:'JSON non valido: '+err.message}]); }});
-  document.getElementById('val-pretty').addEventListener('click',()=>{ try{ const o=JSON.parse(document.getElementById('val-input').value); document.getElementById('val-input').value=JSON.stringify(o,null,2);}catch{} });
-  document.getElementById('val-minify').addEventListener('click',()=>{ try{ const o=JSON.parse(document.getElementById('val-input').value); document.getElementById('val-input').value=JSON.stringify(o);}catch{} });
-})();
+  function markErr(linesIdx){ // highlight line numbers in JSON preview
+    const pre = $("out");
+    const lineArr = pre.textContent.split("\n");
+    linesIdx.forEach(idx=>{
+      if(idx>=0 && idx<lineArr.length){
+        lineArr[idx] = "%ERRLINE%"+lineArr[idx];
+      }
+    });
+    pre.textContent = lineArr.join("\n");
+    pre.innerHTML = pre.innerHTML
+      .replace(/%ERRLINE%(.*)/g,'<span class="errline">$1</span>')
+      .replace(/"(.*?)"(?=\s*:)/g,'<span class="k">"$1"</span>')
+      .replace(/: (".*?"|\d+|true|false|null)(,?)/g,': <span class="v">$1</span>$2');
+  }
+
+  // --- partner ids
+  function addPartner(){
+    const v = parseInt($("pid_val").value,10);
+    if(!Number.isInteger(v) || v<1) return;
+    if(!state.partner_ids.includes(v)) state.partner_ids.push(v);
+    $("pid_val").value="";
+    renderList("partner_list", state.partner_ids, (x,i)=>`#${i} → ${x} <div class="tiny">intero</div>`);
+  }
+  function clearPartners(){
+    state.partner_ids = [];
+    renderList("partner_list", [], ()=>"");
+  }
+
+  // --- attachments
+  function addAttachment(){
+    const label=$("att_label").value.trim();
+    const url=$("att_url").value.trim();
+    const type=$("att_type").value.trim();
+    if(!label || !isURL(url)) return;
+    const obj={label,url};
+    if(type) obj.type=type;
+    state.payload.attachments.push(obj);
+    $("att_label").value="";$("att_url").value="";$("att_type").value="";
+    renderList("attachments", state.payload.attachments, (a,i)=>`[${i}] ${a.label} → ${a.url} ${a.type?("("+a.type+")"):""}`);
+  }
+  function clearList(id){
+    if(id==="attachments") state.payload.attachments=[];
+    if(id==="media") state.payload.media=[];
+    if(id==="links") state.payload.links=[];
+    if(id==="contacts") state.payload.contacts=[];
+    if(id==="agenda") state.payload.agenda=[];
+    if(id==="speakers") state.payload.speakers=[];
+    if(id==="milestones") state.milestones=[];
+    if(id==="quotes") state.quotes=[];
+    renderList(id, [], ()=>"");
+  }
+
+  // --- media
+  function addMedia(){
+    const kind=$("media_kind").value;
+    if(kind==="gallery"){
+      state.payload.media.push({type:"gallery",items:[]});
+    }else if(kind==="image"){
+      const url=$("media_url").value.trim();
+      if(!isURL(url)) return;
+      const caption=$("media_caption").value.trim();
+      const alt=($("media_alt").value||"").trim();
+      if(!alt) return;
+      const img={type:"image",url,alt};
+      if(caption) img.caption=caption;
+      state.payload.media.push(img);
+    }else if(kind==="video"){
+      const url=$("media_url").value.trim();
+      const provider=($("media_provider").value||"").trim();
+      if(!isURL(url)) return;
+      const caption=$("media_caption").value.trim();
+      const vid={type:"video",url};
+      if(caption) vid.caption=caption;
+      if(provider) vid.provider=provider;
+      state.payload.media.push(vid);
+    }
+    $("media_url").value="";$("media_caption").value="";$("media_alt").value="";$("media_provider").value="";
+    renderList("media", state.payload.media, (m,i)=> {
+      if(m.type==="gallery") return `[${i}] gallery: ${m.items.length} items`;
+      if(m.type==="image") return `[${i}] image: ${m.url} alt="${m.alt}"`;
+      return `[${i}] video: ${m.url} ${m.provider?("("+m.provider+")"):""}`;
+    });
+  }
+  function addToGallery(){
+    const idx = parseInt($("gal_index").value,10);
+    const kind=$("gal_item_kind").value;
+    const url=$("gal_item_url").value.trim();
+    const caption=$("gal_item_caption").value.trim();
+    const alt=($("gal_item_alt").value||"").trim();
+    const provider=($("gal_item_provider").value||"").trim();
+    if(!Number.isInteger(idx) || idx<0) return;
+    const g = state.payload.media[idx];
+    if(!g || g.type!=="gallery") return;
+    if(!isURL(url)) return;
+    let item=null;
+    if(kind==="image"){ if(!alt) return; item={type:"image",url,alt}; if(caption) item.caption=caption; }
+    if(kind==="video"){ item={type:"video",url}; if(caption) item.caption=caption; if(provider) item.provider=provider; }
+    if(item){ g.items.push(item); }
+    $("gal_item_url").value="";$("gal_item_caption").value="";$("gal_item_alt").value="";$("gal_item_provider").value="";
+    renderList("media", state.payload.media, (m,i)=> m.type==="gallery" ? `[${i}] gallery: ${m.items.length} items` : `[${i}] ${m.type}: ${m.url}`);
+  }
+
+  // --- links
+  function addLink(){
+    const label=$("link_label").value.trim();
+    const url=$("link_url").value.trim();
+    if(!label || !isURL(url)) return;
+    const rel=($("link_rel").value||"").trim();
+    const external=$("link_external").checked;
+    const obj={label,url};
+    if(rel) obj.rel=rel;
+    if(external) obj.external=true;
+    state.payload.links.push(obj);
+    $("link_label").value="";$("link_url").value="";$("link_rel").value="";$("link_external").checked=false;
+    renderList("links", state.payload.links, (l,i)=>`[${i}] ${l.label} → ${l.url} ${l.external?"(ext)":""}`);
+  }
+
+  // --- contacts
+  function addContact(){
+    const name=$("c_name").value.trim(); if(!name) return;
+    const role=($("c_role").value||"").trim();
+    const email=($("c_email").value||"").trim();
+    const url=($("c_url").value||"").trim();
+    const avatar=($("c_avatar").value||"").trim();
+    const c={name};
+    if(role) c.role=role;
+    if(email){ if(!isEmail(email)) return; c.email=email; }
+    if(url){ if(!isURL(url)) return; c.url=url; }
+    if(avatar){ if(!isURL(avatar)) return; c.avatar_url=avatar; }
+    state.payload.contacts.push(c);
+    ["c_name","c_role","c_email","c_url","c_avatar"].forEach(id=>$(id).value="");
+    renderList("contacts", state.payload.contacts, (c,i)=>`[${i}] ${c.name} ${c.role?("— "+c.role):""} ${c.email?("— "+c.email):""}`);
+  }
+
+  // --- event specifics
+  function setVenue(){
+    const name=$("v_name").value.trim(); if(!name) return;
+    const address=$("v_addr").value.trim();
+    const lat=$("v_lat").value, lon=$("v_lon").value, room=$("v_room").value.trim(), map=$("v_map").value.trim();
+    const v={name};
+    if(address) v.address=address;
+    if(lat!=="") v.lat=parseFloat(lat);
+    if(lon!=="") v.lon=parseFloat(lon);
+    if(room) v.room=room;
+    if(map){ if(!isURL(map)) return; v.map_url=map; }
+    state.venue=v;
+  }
+  function removeVenue(){ state.venue=null; }
+
+  function setLivestream(){
+    const en=$("ls_enabled").value;
+    const platform=$("ls_platform").value.trim();
+    const url=$("ls_url").value.trim();
+    const ls={};
+    if(en==="true") ls.enabled=true; else if(en==="false") ls.enabled=false; else return;
+    if(platform) ls.platform=platform;
+    if(url){ if(!isURL(url)) return; ls.url=url; }
+    state.livestream=ls;
+  }
+  function removeLivestream(){ state.livestream=null; }
+
+  function setRegistration(){
+    const req=$("rg_required").value;
+    const url=$("rg_url").value.trim();
+    const dl=$("rg_deadline").value.trim();
+    const r={};
+    if(req==="true") r.required=true; else if(req==="false") r.required=false; else return;
+    if(url){ if(!isURL(url)) return; r.url=url; }
+    if(dl){ if(!isDTss(dl)) return; r.deadline=dl; }
+    state.registration=r;
+  }
+  function removeRegistration(){ state.registration=null; }
+
+  function addAgenda(){
+    const t=$("ag_time").value.trim();
+    const title=$("ag_title").value.trim();
+    if(!/^[0-2]\d:[0-5]\d$/.test(t) || !title) return;
+    const speakers = cleanComma($("ag_speakers").value);
+    const item={time:t,title};
+    if(speakers.length) item.speakers=speakers;
+    state.payload.agenda.push(item);
+    ["ag_time","ag_title","ag_speakers"].forEach(id=>$(id).value="");
+    renderList("agenda", state.payload.agenda, (a,i)=>`[${i}] ${a.time} — ${a.title} ${a.speakers?("("+a.speakers.join(", ")+")"):""}`);
+  }
+
+  function addSpeaker(){
+    const name=$("sp_name").value.trim(); if(!name) return;
+    const aff=$("sp_aff").value.trim();
+    const bio=$("sp_bio").value.trim();
+    const avatar=$("sp_avatar").value.trim();
+    const s={name}; if(aff) s.affiliation=aff; if(bio) s.bio=bio; if(avatar){ if(!isURL(avatar)) return; s.avatar_url=avatar; }
+    state.payload.speakers.push(s);
+    ["sp_name","sp_aff","sp_bio","sp_avatar"].forEach(id=>$(id).value="");
+    renderList("speakers", state.payload.speakers, (s,i)=>`[${i}] ${s.name} ${s.affiliation?("— "+s.affiliation):""}`);
+  }
+
+  function setTickets(){
+    const f=$("tk_free").value;
+    const cap=$("tk_capacity").value, sold=$("tk_sold").value, price=$("tk_price").value;
+    const t={};
+    if(f==="true") t.free=true; else if(f==="false") t.free=false; else return;
+    if(cap!=="") t.capacity=parseInt(cap,10);
+    if(sold!=="") t.sold=parseInt(sold,10);
+    if(price!=="") t.price_eur=parseFloat(price);
+    state.tickets=t;
+  }
+  function removeTickets(){ state.tickets=null; }
+
+  // --- collaboration specifics
+  function addMilestone(){
+    const date=$("ms_date").value.trim(), title=$("ms_title").value.trim(), desc=$("ms_desc").value.trim();
+    if(!isDate(date) || !title) return;
+    const m={date,title}; if(desc) m.desc=desc;
+    state.milestones.push(m);
+    ["ms_date","ms_title","ms_desc"].forEach(id=>$(id).value="");
+    renderList("milestones", state.milestones, (m,i)=>`[${i}] ${m.date} — ${m.title} ${m.desc?("— "+m.desc):""}`);
+  }
+
+  // --- news specifics
+  function addQuote(){
+    const a=$("q_author").value.trim(), t=$("q_text").value.trim();
+    if(!a || !t) return;
+    state.quotes.push({author:a,text:t});
+    ["q_author","q_text"].forEach(id=>$(id).value="");
+    renderList("quotes", state.quotes, (q,i)=>`[${i}] ${q.author}: “${q.text}”`);
+  }
+
+  // --- builder
+  function build(){
+    const obj = { 
+      $schema:"https://json-schema.org/draft/2020-12/schema",
+      $id:"https://example.org/suggestion.schema.json",
+      title:"Suggestion",
+      type:"object" // informativo, non esportato nel payload finale
+    };
+
+    // root suggestion fields
+    const idVal = $("id").value;
+    const type = $("type").value;
+    const title = $("title").value.trim();
+    const summary = $("summary").value.trim();
+    const status = $("status").value;
+    const priority = $("priority").value;
+    const published_at = $("published_at").value.trim();
+
+    const suggestion = {};
+    if(idVal) suggestion.id = parseInt(idVal,10);
+    suggestion.type = type;
+    suggestion.title = title;
+    if(summary) suggestion.summary = summary;
+    if(status) suggestion.status = status; else suggestion.status = "draft";
+    suggestion.priority = (priority==="" ? 0 : clampInt(priority,-10,10,0));
+    if(published_at){ if(!isDTmm(published_at)) return showJSON({error:"published_at non valido. Usa YYYY-MM-DDTHH:mm"}, true); suggestion.published_at = published_at; }
+    if(state.partner_ids.length) suggestion.partner_ids = [...new Set(state.partner_ids)];
+
+    // payload common
+    const payload = {};
+    payload.schema_version = 1;
+
+    const tags = cleanComma($("tags").value);
+    if(tags.length) payload.tags = [...new Set(tags)];
+
+    const seo = {};
+    const s_slug=$("seo_slug").value.trim(), s_kws=cleanComma($("seo_keywords").value), s_img=$("seo_image").value.trim();
+    if(s_slug){ if(s_slug.length<3 || s_slug.length>80) return showJSON({error:"seo.slug lunghezza non valida"}, true); seo.slug=s_slug; }
+    if(s_kws.length) seo.keywords=[...new Set(s_kws)];
+    if(s_img){ if(!isURL(s_img)) return showJSON({error:"seo.image URL non valido"}, true); seo.image=s_img; }
+    if(Object.keys(seo).length) payload.seo=seo;
+
+    if(state.payload.attachments.length) payload.attachments = structuredClone(state.payload.attachments);
+    if(state.payload.media.length) payload.media = structuredClone(state.payload.media);
+    if(state.payload.links.length) payload.links = structuredClone(state.payload.links);
+    if(state.payload.contacts.length) payload.contacts = structuredClone(state.payload.contacts);
+    const notes = $("notes_md").value.trim(); if(notes) payload.notes_md = notes;
+
+    // payload type-specific
+    if(type==="event"){
+      if($("ev_start").value){ if(!isDTss($("ev_start").value)) return showJSON({error:"event.start_at non valido"}, true); payload.start_at=$("ev_start").value.trim(); }
+      if($("ev_end").value){ if(!isDTss($("ev_end").value)) return showJSON({error:"event.end_at non valido"}, true); payload.end_at=$("ev_end").value.trim(); }
+      const tz=$("ev_tz").value.trim(); if(tz){ if(!isTZ(tz)) return showJSON({error:"event.timezone non valido"}, true); payload.timezone=tz; }
+      if(state.venue) payload.venue = structuredClone(state.venue);
+      if($("ev_online").value){ payload.online = $("ev_online").value==="true"; }
+      if(state.livestream) payload.livestream = structuredClone(state.livestream);
+      if(state.registration) payload.registration = structuredClone(state.registration);
+      if(state.payload.agenda.length) payload.agenda = structuredClone(state.payload.agenda);
+      if(state.payload.speakers.length) payload.speakers = structuredClone(state.payload.speakers);
+      if(state.tickets) payload.tickets = structuredClone(state.tickets);
+    } else if(type==="collaboration"){
+      const goal=$("cl_goal").value.trim(); if(goal) payload.goal=goal;
+      const wps=cleanComma($("cl_wps").value); if(wps.length) payload.work_packages=[...new Set(wps)];
+      const tline={};
+      const tstart=$("cl_tl_start").value.trim(), tend=$("cl_tl_end").value.trim();
+      if(tstart){ if(!isDate(tstart)) return showJSON({error:"timeline.start non valido"}, true); tline.start=tstart; }
+      if(tend){ if(!isDate(tend)) return showJSON({error:"timeline.end non valido"}, true); tline.end=tend; }
+      if(state.milestones.length) tline.milestones=structuredClone(state.milestones);
+      if(Object.keys(tline).length) payload.timeline=tline;
+
+      const req={};
+      const rtech=cleanComma($("rq_tech").value), rntech=cleanComma($("rq_nontech").value);
+      if(rtech.length || rntech.length){
+        req.tech = rtech.length?[...new Set(rtech)]:[];
+        req.non_tech = rntech.length?[...new Set(rntech)]:[];
+        payload.requirements = req;
+      }
+
+      const fd={};
+      const fds=$("fd_status").value;
+      const fsrc=cleanComma($("fd_sources").value);
+      if(fds) fd.status=fds;
+      if(fsrc.length) fd.sources=[...new Set(fsrc)];
+      if(Object.keys(fd).length) payload.funding=fd;
+
+    } else if(type==="announcement"){
+      const ch=linesToArray($("an_changelog").value);
+      const br=linesToArray($("an_breaking").value);
+      const docs=$("an_docs").value.trim();
+      if(ch.length) payload.changelog=ch;
+      if(br.length) payload.breaking_changes=br;
+      if(docs){ if(!isURL(docs)) return showJSON({error:"docs_url non valida"}, true); payload.docs_url=docs; }
+      const rtype=$("an_roll_type").value, rpct=$("an_roll_pct").value;
+      if(rtype || rpct!==""){
+        const ro={}; if(rtype) ro.type=rtype;
+        if(rpct!==""){ const p = clampInt(rpct,0,100,0); ro.percent=p; }
+        payload.rollout=ro;
+      }
+    } else if(type==="news"){
+      const body=$("nw_body").value.trim(); if(body) payload.body_md=body;
+      if(state.quotes.length) payload.quotes = structuredClone(state.quotes);
+      // media e seo già nella parte comune
+    }
+
+    suggestion.payload = payload;
+
+    // final checks required
+    if(!suggestion.type) return showJSON({error:"type obbligatorio"}, true);
+    if(!suggestion.title || suggestion.title.length<1 || suggestion.title.length>140) return showJSON({error:"title [1..140] obbligatorio"}, true);
+
+    // publish
+    showJSON(suggestion,false);
+  }
+
+  function linesToArray(text){
+    return (text||"").split("\n").map(x=>x.trim()).filter(Boolean);
+  }
+
+  function showJSON(obj, isError){
+    const json = JSON.stringify(obj, null, 2);
+    $("out").textContent = json;
+    $("out").scrollTop = 0;
+    // syntax color
+    $("out").innerHTML = $("out").innerHTML
+      .replace(/"(.*?)"(?=\s*:)/g,'<span class="k">"$1"</span>')
+      .replace(/: (".*?"|\d+|true|false|null)(,?)/g,': <span class="v">$1</span>$2');
+    if(isError) markErr([0]); // evidenzia riga
+  }
+
+  // --- io helpers
+  function copyJSON(){
+    const txt = $("out").textContent;
+    navigator.clipboard.writeText(txt);
+  }
+  function downloadJSON(){
+    const blob = new Blob([$("out").textContent], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "suggestion.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function resetAll(){
+    document.querySelectorAll("input, textarea, select").forEach(el=>{
+      if(el.type==="checkbox") el.checked=false; else el.value="";
+    });
+    // reset state arrays/objects
+    state.partner_ids=[]; state.payload.attachments=[]; state.payload.media=[];
+    state.payload.links=[]; state.payload.contacts=[]; state.payload.agenda=[];
+    state.payload.speakers=[]; state.milestones=[]; state.quotes=[];
+    state.venue=null; state.registration=null; state.livestream=null; state.tickets=null;
+    ["partner_list","attachments","media","links","contacts","agenda","speakers","milestones","quotes"].forEach(id=>$(id).innerHTML="");
+    showJSON({},false);
+  }
+
+  function loadSample(){
+    resetAll();
+    $("type").value="event";
+    $("title").value="Seminario su AI e monitoraggio marino";
+    $("summary").value="Panoramica sui metodi moderni per il rilevamento automatico in mare.";
+    $("status").value="draft";
+    $("priority").value="2";
+    $("published_at").value="2025-08-18T10:00";
+    $("tags").value="ai, marine, cv";
+    $("notes_md").value="Note interne.";
+    $("seo_slug").value="seminario-ai-monitoraggio-marino";
+    $("seo_keywords").value="ai,marine,seminar";
+    $("seo_image").value="https://example.org/hero.jpg";
+    $("pid_val").value="12"; addPartner();
+    $("pid_val").value="34"; addPartner();
+
+    // media
+    $("media_kind").value="image"; $("media_url").value="https://example.org/img1.jpg"; $("media_alt").value="locandina"; $("media_caption").value="Locandina"; addMedia();
+    $("media_kind").value="gallery"; addMedia();
+    $("gal_index").value="1"; $("gal_item_kind").value="image"; $("gal_item_url").value="https://example.org/pic.jpg"; $("gal_item_alt").value="sala"; $("gal_item_caption").value="La sala"; addToGallery();
+
+    // link
+    $("link_label").value="Dettagli"; $("link_url").value="https://example.org/info"; $("link_external").checked=true; addLink();
+
+    // contact
+    $("c_name").value="Dr. Rossi"; $("c_email").value="rossi@example.org"; addContact();
+
+    // event specifics
+    $("ev_start").value="2025-09-01T09:00:00";
+    $("ev_end").value="2025-09-01T12:30:00";
+    $("ev_tz").value="Europe/Rome";
+    $("ev_online").value="false";
+
+    // venue
+    $("v_name").value="Aula Magna"; $("v_addr").value="Via Roma 1"; $("v_lat").value="41.9"; $("v_lon").value="12.5"; $("v_room").value="A1"; $("v_map").value="https://maps.example.org"; setVenue();
+
+    // registration
+    $("rg_required").value="true"; $("rg_url").value="https://example.org/iscrizione"; $("rg_deadline").value="2025-08-31T23:59:59"; setRegistration();
+
+    // agenda
+    $("ag_time").value="09:00"; $("ag_title").value="Apertura"; $("ag_speakers").value="Rossi, Bianchi"; addAgenda();
+    $("ag_time").value="10:00"; $("ag_title").value="Keynote"; $("ag_speakers").value="Verdi"; addAgenda();
+
+    // speakers
+    $("sp_name").value="L. Verdi"; $("sp_aff").value="UniRoma"; addSpeaker();
+
+    // tickets
+    $("tk_free").value="true"; $("tk_capacity").value="150"; setTickets();
+
+    build();
+  }
+
+  // init
+  showJSON({},false);
 </script>
 </body>
 </html>
