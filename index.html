@@ -3,13 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Manuale JSON – Suggestion schema</title>
+<title>Manuale JSON – SOLO Payload (Suggestion schema)</title>
 <style>
-  :root{
-    --bg:#0b0d10; --panel:#11151a; --muted:#8a98a9; --txt:#e6eef7; --accent:#41a4ff; --accent-2:#00c7a5; --warn:#ffcc00; --bad:#ff6b6b; --good:#1ecb7b;
-    --card:#0f1318; --shadow:0 10px 30px rgba(0,0,0,.35); --border:1px solid rgba(255,255,255,.08);
-  }
-  .light{ --bg:#f6f8fb; --panel:#ffffff; --muted:#5a6674; --txt:#0d1117; --accent:#0b74ff; --accent-2:#00a38c; --warn:#b58900; --bad:#d7263d; --good:#0f915a; --card:#fff; --shadow:0 8px 24px rgba(0,0,0,.08); --border:1px solid rgba(0,0,0,.08); }
+  :root{--bg:#0b0d10;--panel:#11151a;--muted:#8a98a9;--txt:#e6eef7;--accent:#41a4ff;--accent-2:#00c7a5;--warn:#ffcc00;--bad:#ff6b6b;--good:#1ecb7b;--card:#0f1318;--shadow:0 10px 30px rgba(0,0,0,.35);--border:1px solid rgba(255,255,255,.08)}
+  .light{--bg:#f6f8fb;--panel:#fff;--muted:#5a6674;--txt:#0d1117;--accent:#0b74ff;--accent-2:#00a38c;--warn:#b58900;--bad:#d7263d;--good:#0f915a;--card:#fff;--shadow:0 8px 24px rgba(0,0,0,.08);--border:1px solid rgba(0,0,0,.08)}
   *{box-sizing:border-box}
   html,body{height:100%}
   body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
@@ -21,7 +18,6 @@
   .lead{color:var(--muted);margin:0}
   .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
   .input, select, button{background:var(--panel);color:var(--txt);border:var(--border);border-radius:12px;padding:10px 12px;font:inherit}
-  .input::placeholder{color:var(--muted)}
   button{cursor:pointer}
   button.primary{background:var(--accent);color:#fff;border:none}
   button.ghost{background:transparent;border:var(--border)}
@@ -29,12 +25,8 @@
   .ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
   .grid{display:grid;gap:16px}
   .two{grid-template-columns:1fr 1fr}
-  .three{grid-template-columns:repeat(3,1fr)}
   .card{background:var(--card);border:var(--border);border-radius:16px;box-shadow:var(--shadow);padding:16px}
-  .card h3{margin:0 0 6px}
-  .card h4{margin:0 0 10px}
   .muted{color:var(--muted)}
-  code, pre{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
   pre{background:var(--panel);border:var(--border);border-radius:14px;padding:14px;overflow:auto}
   .nav{position:sticky;top:20px;align-self:start;background:var(--panel);border:var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
   .nav a{display:block;padding:8px 10px;border-radius:10px;color:var(--txt)}
@@ -43,247 +35,83 @@
   table{width:100%;border-collapse:collapse}
   th,td{border-bottom:var(--border);padding:10px 8px;vertical-align:top}
   th{text-align:left;color:var(--muted);font-weight:600}
-  tr.hide{display:none}
   .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:var(--border);font-size:12px}
   .pill.req{background:rgba(255,107,107,.1);color:var(--bad)}
-  .pill.opt{background:rgba(65,164,255,.08);color:var(--accent)}
   details{background:var(--card);border:var(--border);border-radius:14px;padding:12px}
-  details+details{margin-top:10px}
-  summary{cursor:pointer;font-weight:600}
-  .k{color:#ffad33} .s{color:#7bd389} .n{color:#f7768e} .b{color:#9aa6b2}
-  .hl pre{white-space:pre-wrap}
-  .k,.s,.n,.b{font-family:inherit}
-  .sticky-actions{display:flex;gap:8px;position:sticky;top:20px;z-index:5}
-  .footer{color:var(--muted);font-size:14px;margin-top:24px}
   .tabbar{display:flex;gap:8px;margin-bottom:12px}
-  .tabbar button{padding:8px 10px;border-radius:10px}
   .tabbar button.active{background:var(--accent);color:#fff;border:none}
-  .kbd{font-size:12px;border:var(--border);padding:1px 6px;border-radius:6px;background:var(--panel);color:var(--muted)}
   .callout{border-left:4px solid var(--accent);padding:10px 12px;background:linear-gradient(90deg, rgba(65,164,255,.08), transparent);border-radius:8px}
   .copy{float:right}
-  .nowrap{white-space:nowrap}
-  .taglist{display:flex;flex-wrap:wrap;gap:8px}
-  .tag{background:rgba(65,164,255,.12);border:var(--border);padding:4px 8px;border-radius:999px;font-size:12px}
-  @media (max-width: 1100px){.layout{grid-template-columns:1fr}} 
+  @media (max-width:1100px){.layout{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="layout" id="top">
+<div class="layout">
   <header>
-    <h1>Manuale interattivo – JSON <span class="muted">Suggestion</span></h1>
-    <p class="lead">Guida completa e consultabile per compilare il JSON conforme allo schema. Include esempi pronti, generatore, copia/scarica e controlli di validazione basilari.</p>
+    <h1>Manuale – JSON <span class="muted">SOLO Payload</span></h1>
+    <p class="lead">Compila esclusivamente l'oggetto <strong>payload</strong> da incollare nel campo “Payload (JSON)”. I campi di testata si compilano nel form e NON vanno messi nel JSON.</p>
     <div class="toolbar">
-      <input class="input" id="search" placeholder="Filtra proprietà… (es. timezone, agenda, media)" />
-      <button id="expandAll" class="ghost">Espandi tutto</button>
-      <button id="collapseAll" class="ghost">Comprimi tutto</button>
       <button id="theme" class="ghost" aria-pressed="false" title="Tema chiaro/scuro">Tema</button>
-      <span class="badge" title="Formato data locale senza timezone">published_at <span class="kbd">YYYY-MM-DDTHH:mm</span></span>
-      <span class="badge" title="ISO senza timezone">isoDateTime <span class="kbd">YYYY-MM-DDTHH:mm:ss</span></span>
-      <span class="badge" title="IANA">timezone <span class="kbd">Europe/Rome</span></span>
+      <span class="badge">Formati: <code>isoDateTime</code> <small>YYYY-MM-DDTHH:mm:ss</small> · <code>isoDate</code> <small>YYYY-MM-DD</small></span>
     </div>
   </header>
 
   <nav class="nav">
     <strong>Sezioni</strong>
-    <a href="#overview">Panoramica</a>
-    <a href="#root">Campi principali</a>
+    <a href="#note">Cosa NON mettere nel JSON</a>
     <a href="#defs">Definizioni comuni</a>
-    <a href="#payloads">Payload per tipo</a>
-    <a href="#examples">Esempi completi</a>
-    <a href="#generator">Generatore JSON</a>
-    <a href="#validator">Validatore</a>
+    <a href="#payloads">Campi payload per tipo</a>
+    <a href="#examples">Esempi di payload</a>
+    <a href="#generator">Generatore payload</a>
+    <a href="#validator">Validatore payload</a>
   </nav>
 
   <main class="grid" style="gap:24px">
 
-    <section id="overview" class="section card">
-      <h2>Panoramica</h2>
-      <div class="callout">Struttura: <code>{ type, title, summary, status, priority, published_at, partner_ids, payload }</code>. <strong>type</strong> e <strong>title</strong> obbligatori. <strong>payload</strong> cambia in base a <strong>type</strong>. <span class="nowrap">Proprietà extra non ammesse a livello root.</span></div>
-    </section>
-
-    <section id="root" class="section card">
-      <div class="sticky-actions">
-        <h2 style="margin:0">Campi principali (root)</h2>
-        <button class="ghost" id="copyRoot">Copia tabella CSV</button>
+    <section id="note" class="section card">
+      <h2>Cosa NON inserire nel JSON</h2>
+      <div class="callout">
+        Compila nel form e <u>non</u> nel payload: <code>type</code>, <code>title</code>, <code>summary</code>, <code>status</code>, <code>priority</code>, <code>published_at</code>, <code>partner_ids</code>. Il campo “Associa Partner” gestisce i partner. Il payload contiene SOLO i dettagli specifici.
       </div>
-      <table id="rootTable">
-        <thead>
-          <tr><th>Campo</th><th>Tipo</th><th>Obbl.</th><th>Vincoli</th><th>Default</th><th>Descrizione</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>id</td><td>integer</td><td><span class="pill opt">no</span></td><td>min 1</td><td>—</td><td>Solo lettura</td></tr>
-          <tr><td>type</td><td>string</td><td><span class="pill req">sì</span></td><td>enum: event, collaboration, announcement, news</td><td>—</td><td>Categoria contenuto</td></tr>
-          <tr><td>title</td><td>string</td><td><span class="pill req">sì</span></td><td>1–140 char</td><td>—</td><td>Titolo</td></tr>
-          <tr><td>summary</td><td>string</td><td><span class="pill opt">no</span></td><td>max 300; markdown inline</td><td>—</td><td>Riassunto breve</td></tr>
-          <tr><td>status</td><td>string</td><td><span class="pill opt">no</span></td><td>enum: draft, approved, published, archived</td><td>draft</td><td>Stato</td></tr>
-          <tr><td>priority</td><td>integer</td><td><span class="pill opt">no</span></td><td>-10…10</td><td>0</td><td>Priorità ordinamento</td></tr>
-          <tr><td>published_at</td><td>string|null</td><td><span class="pill opt">no</span></td><td>YYYY-MM-DDTHH:mm</td><td>—</td><td>Data/ora locale</td></tr>
-          <tr><td>partner_ids</td><td>array&lt;integer&gt;</td><td><span class="pill opt">no</span></td><td>min 1; unici</td><td>[]</td><td>ID partner</td></tr>
-          <tr><td>payload</td><td>object</td><td><span class="pill opt">no</span></td><td>struttura dipende da type</td><td>—</td><td>Dettagli</td></tr>
-        </tbody>
-      </table>
     </section>
 
     <section id="defs" class="section card">
-      <h2>Definizioni comuni ($defs)</h2>
-      <p class="muted">Oggetti e formati riutilizzabili.</p>
-      <div class="grid two">
-        <div>
-          <details open>
-            <summary><strong>Formati base</strong></summary>
-            <table>
-              <tr><td>url</td><td>string URL valida (max 2048)</td></tr>
-              <tr><td>email</td><td>string che combacia con <code>.+@.+\..+</code></td></tr>
-              <tr><td>isoDateTime</td><td>stringa <code>YYYY-MM-DDTHH:mm:ss</code></td></tr>
-              <tr><td>isoDate</td><td>stringa <code>YYYY-MM-DD</code></td></tr>
-              <tr><td>timezone</td><td>stringa IANA (≥ 3 char), es. Europe/Rome</td></tr>
-              <tr><td>tag</td><td>string 1–24 char</td></tr>
-              <tr><td>tags</td><td>array di <code>tag</code> unici</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>SEO</strong></summary>
-            <table>
-              <tr><th>Campo</th><th>Tipo</th><th>Regole</th></tr>
-              <tr><td>slug</td><td>string</td><td>3–80 char</td></tr>
-              <tr><td>keywords</td><td>array&lt;string&gt;</td><td>uniche</td></tr>
-              <tr><td>image</td><td>url</td><td>—</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Attachment</strong></summary>
-            <table>
-              <tr><td>label</td><td>string 1–60</td></tr>
-              <tr><td>url</td><td>url</td></tr>
-              <tr><td>type</td><td>enum: pdf, image, doc, sheet, other</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Link</strong></summary>
-            <table>
-              <tr><td>label</td><td>string 1–60</td></tr>
-              <tr><td>url</td><td>url</td></tr>
-              <tr><td>rel</td><td>string</td></tr>
-              <tr><td>external</td><td>boolean</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Contact</strong></summary>
-            <table>
-              <tr><td>name</td><td>string (obbl.)</td></tr>
-              <tr><td>role</td><td>string</td></tr>
-              <tr><td>email</td><td>email</td></tr>
-              <tr><td>url</td><td>url</td></tr>
-              <tr><td>avatar_url</td><td>url</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Venue</strong></summary>
-            <table>
-              <tr><td>name</td><td>string (obbl.)</td></tr>
-              <tr><td>address</td><td>string</td></tr>
-              <tr><td>lat</td><td>number -90…90</td></tr>
-              <tr><td>lon</td><td>number -180…180</td></tr>
-              <tr><td>room</td><td>string</td></tr>
-              <tr><td>map_url</td><td>url</td></tr>
-            </table>
-          </details>
-        </div>
-        <div>
-          <details>
-            <summary><strong>Media</strong></summary>
-            <table>
-              <tr><th>Oggetto</th><th>Campi</th></tr>
-              <tr><td>mediaImage</td><td><code>type: "image"</code>, url, caption (max 160), alt (≥1)</td></tr>
-              <tr><td>mediaVideo</td><td><code>type: "video"</code>, url, caption (max 160), provider (youtube|vimeo|file)</td></tr>
-              <tr><td>mediaGallery</td><td><code>type: "gallery"</code>, items: array di image|video (min 1)</td></tr>
-              <tr><td>media</td><td>array di mediaImage|mediaVideo|mediaGallery</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Registration</strong></summary>
-            <table>
-              <tr><td>required</td><td>boolean (obbl.)</td></tr>
-              <tr><td>url</td><td>url</td></tr>
-              <tr><td>deadline</td><td>isoDateTime</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Livestream</strong></summary>
-            <table>
-              <tr><td>enabled</td><td>boolean (obbl.)</td></tr>
-              <tr><td>platform</td><td>string</td></tr>
-              <tr><td>url</td><td>url</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Agenda</strong></summary>
-            <table>
-              <tr><td>time</td><td>string HH:mm</td></tr>
-              <tr><td>title</td><td>string</td></tr>
-              <tr><td>speakers</td><td>array&lt;string&gt;</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Speaker</strong></summary>
-            <table>
-              <tr><td>name</td><td>string (obbl.)</td></tr>
-              <tr><td>affiliation</td><td>string</td></tr>
-              <tr><td>bio</td><td>string</td></tr>
-              <tr><td>avatar_url</td><td>url</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Tickets</strong></summary>
-            <table>
-              <tr><td>free</td><td>boolean (obbl.)</td></tr>
-              <tr><td>capacity</td><td>integer ≥ 0</td></tr>
-              <tr><td>sold</td><td>integer ≥ 0</td></tr>
-              <tr><td>price_eur</td><td>number ≥ 0</td></tr>
-            </table>
-          </details>
-
-          <details>
-            <summary><strong>Timeline & Milestones</strong></summary>
-            <table>
-              <tr><td>timeline.start</td><td>isoDate</td></tr>
-              <tr><td>timeline.end</td><td>isoDate</td></tr>
-              <tr><td>milestone.date</td><td>isoDate</td></tr>
-              <tr><td>milestone.title</td><td>string</td></tr>
-              <tr><td>milestone.desc</td><td>string</td></tr>
-            </table>
-          </details>
-        </div>
-      </div>
-
-      <details style="margin-top:12px" open>
-        <summary><strong>commonPayload</strong></summary>
+      <h2>Definizioni comuni</h2>
+      <details open><summary><strong>Formati</strong></summary>
         <table>
-          <tr><th>Campo</th><th>Tipo</th><th>Regole</th><th>Descrizione</th></tr>
-          <tr><td>schema_version</td><td>integer</td><td>min 1, default 1</td><td>Versione dati</td></tr>
-          <tr><td>tags</td><td>tags</td><td>unici</td><td>Etichette contenuto</td></tr>
-          <tr><td>seo</td><td>seo</td><td>—</td><td>Metadati SEO</td></tr>
-          <tr><td>attachments</td><td>array&lt;attachment&gt;</td><td>—</td><td>Allegati</td></tr>
-          <tr><td>media</td><td>media</td><td>—</td><td>Immagini/Video/Galleria</td></tr>
-          <tr><td>links</td><td>array&lt;link&gt;</td><td>—</td><td>Link utili</td></tr>
-          <tr><td>contacts</td><td>array&lt;contact&gt;</td><td>—</td><td>Contatti</td></tr>
-          <tr><td>notes_md</td><td>string</td><td>markdown</td><td>Note interne</td></tr>
+          <tr><td>isoDateTime</td><td>stringa <code>YYYY-MM-DDTHH:mm:ss</code></td></tr>
+          <tr><td>isoDate</td><td>stringa <code>YYYY-MM-DD</code></td></tr>
+          <tr><td>timezone</td><td>stringa IANA (es. <code>Europe/Rome</code>)</td></tr>
+          <tr><td>url</td><td>URL valida (max 2048)</td></tr>
+          <tr><td>email</td><td>pattern e-mail</td></tr>
+          <tr><td>tag</td><td>1–24 caratteri; <em>tags</em> è un array di tag unici</td></tr>
+        </table>
+      </details>
+
+      <details><summary><strong>Oggetti riutilizzabili</strong></summary>
+        <table>
+          <tr><th>Oggetto</th><th>Campi</th></tr>
+          <tr><td>seo</td><td>slug (3–80), keywords[], image(url)</td></tr>
+          <tr><td>attachment</td><td>label(1–60), url, type(pdf|image|doc|sheet|other)</td></tr>
+          <tr><td>mediaImage</td><td>type:"image", url, caption(≤160), alt(≥1)</td></tr>
+          <tr><td>mediaVideo</td><td>type:"video", url, caption(≤160), provider(youtube|vimeo|file)</td></tr>
+          <tr><td>mediaGallery</td><td>type:"gallery", items[ mediaImage|mediaVideo ] (≥1)</td></tr>
+          <tr><td>link</td><td>label(1–60), url, rel, external(bool)</td></tr>
+          <tr><td>contact</td><td>name(obbl.), role, email, url, avatar_url</td></tr>
+          <tr><td>venue</td><td>name(obbl.), address, lat(-90..90), lon(-180..180), room, map_url</td></tr>
+          <tr><td>registration</td><td>required(bool, obbl.), url, deadline(isoDateTime)</td></tr>
+          <tr><td>livestream</td><td>enabled(bool, obbl.), platform, url</td></tr>
+          <tr><td>agendaItem</td><td>time(HH:mm), title, speakers[]</td></tr>
+          <tr><td>speaker</td><td>name(obbl.), affiliation, bio, avatar_url</td></tr>
+          <tr><td>tickets</td><td>free(bool, obbl.), capacity≥0, sold≥0, price_eur≥0</td></tr>
+          <tr><td>milestone</td><td>date(isoDate), title, desc</td></tr>
+          <tr><td>timeline</td><td>start(isoDate), end(isoDate), milestones[]</td></tr>
         </table>
       </details>
     </section>
 
     <section id="payloads" class="section card">
-      <h2>Payload per tipo</h2>
+      <h2>Campi del payload</h2>
       <div class="tabbar" role="tablist">
         <button class="active" role="tab" data-tab="event">event</button>
         <button role="tab" data-tab="collaboration">collaboration</button>
@@ -293,6 +121,14 @@
       <div id="tab-event">
         <table>
           <tr><th>Campo</th><th>Tipo</th><th>Regole</th><th>Descrizione</th></tr>
+          <tr><td>schema_version</td><td>integer</td><td>≥1 (default 1)</td><td>Versione</td></tr>
+          <tr><td>tags</td><td>array&lt;tag&gt;</td><td>unici</td><td>Etichette</td></tr>
+          <tr><td>seo</td><td>seo</td><td>—</td><td>Metadati</td></tr>
+          <tr><td>attachments</td><td>array&lt;attachment&gt;</td><td>—</td><td>Allegati</td></tr>
+          <tr><td>media</td><td>media</td><td>—</td><td>Immagini/Video</td></tr>
+          <tr><td>links</td><td>array&lt;link&gt;</td><td>—</td><td>Link</td></tr>
+          <tr><td>contacts</td><td>array&lt;contact&gt;</td><td>—</td><td>Contatti</td></tr>
+          <tr><td>notes_md</td><td>string</td><td>markdown</td><td>Note</td></tr>
           <tr><td>start_at</td><td>isoDateTime</td><td>—</td><td>Inizio</td></tr>
           <tr><td>end_at</td><td>isoDateTime</td><td>—</td><td>Fine</td></tr>
           <tr><td>timezone</td><td>timezone</td><td>IANA</td><td>Fuso</td></tr>
@@ -309,28 +145,34 @@
       <div id="tab-collaboration" hidden>
         <table>
           <tr><th>Campo</th><th>Tipo</th><th>Regole</th><th>Descrizione</th></tr>
+          <tr><td>schema_version</td><td>integer</td><td>≥1</td><td>Versione</td></tr>
+          <tr><td>tags, seo, attachments, media, links, contacts, notes_md</td><td>vari</td><td>—</td><td>Campi comuni</td></tr>
           <tr><td>goal</td><td>string</td><td>—</td><td>Obiettivo</td></tr>
-          <tr><td>work_packages</td><td>array&lt;string&gt;</td><td>—</td><td>Pacchetti di lavoro</td></tr>
+          <tr><td>work_packages</td><td>array&lt;string&gt;</td><td>—</td><td>Pacchetti</td></tr>
           <tr><td>timeline</td><td>timeline</td><td>—</td><td>Pianificazione</td></tr>
           <tr><td>requirements.tech</td><td>array&lt;string&gt;</td><td>—</td><td>Requisiti tecnici</td></tr>
           <tr><td>requirements.non_tech</td><td>array&lt;string&gt;</td><td>—</td><td>Requisiti non tecnici</td></tr>
-          <tr><td>funding.status</td><td>string</td><td>enum: secured, in_progress, needed</td><td>Stato finanziamento</td></tr>
+          <tr><td>funding.status</td><td>string</td><td>secured|in_progress|needed</td><td>Stato</td></tr>
           <tr><td>funding.sources</td><td>array&lt;string&gt;</td><td>—</td><td>Fonti</td></tr>
         </table>
       </div>
       <div id="tab-announcement" hidden>
         <table>
           <tr><th>Campo</th><th>Tipo</th><th>Regole</th><th>Descrizione</th></tr>
+          <tr><td>schema_version</td><td>integer</td><td>≥1</td><td>Versione</td></tr>
+          <tr><td>tags, seo, attachments, media, links, contacts, notes_md</td><td>vari</td><td>—</td><td>Campi comuni</td></tr>
           <tr><td>changelog</td><td>array&lt;string&gt;</td><td>—</td><td>Novità</td></tr>
           <tr><td>breaking_changes</td><td>array&lt;string&gt;</td><td>—</td><td>Modifiche critiche</td></tr>
           <tr><td>docs_url</td><td>url</td><td>—</td><td>Documentazione</td></tr>
-          <tr><td>rollout.type</td><td>string</td><td>enum: global, gradual, canary</td><td>Tipo rollout</td></tr>
-          <tr><td>rollout.percent</td><td>integer 0–100</td><td>—</td><td>Percentuale</td></tr>
+          <tr><td>rollout.type</td><td>string</td><td>global|gradual|canary</td><td>Tipo</td></tr>
+          <tr><td>rollout.percent</td><td>integer</td><td>0–100</td><td>Percentuale</td></tr>
         </table>
       </div>
       <div id="tab-news" hidden>
         <table>
           <tr><th>Campo</th><th>Tipo</th><th>Regole</th><th>Descrizione</th></tr>
+          <tr><td>schema_version</td><td>integer</td><td>≥1</td><td>Versione</td></tr>
+          <tr><td>tags, seo, attachments, media, links, contacts, notes_md</td><td>vari</td><td>—</td><td>Campi comuni</td></tr>
           <tr><td>body_md</td><td>string</td><td>markdown</td><td>Corpo</td></tr>
           <tr><td>quotes[].author</td><td>string</td><td>—</td><td>Autore</td></tr>
           <tr><td>quotes[].text</td><td>string</td><td>—</td><td>Citazione</td></tr>
@@ -341,159 +183,112 @@
     </section>
 
     <section id="examples" class="section card">
-      <div class="sticky-actions">
-        <h2 style="margin:0">Esempi completi</h2>
-        <button class="ghost" id="copyAllExamples">Copia tutti</button>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="margin:0">Esempi di <u>payload</u> pronti</h2>
+        <div>
+          <button class="ghost" id="copyAllExamples">Copia tutti</button>
+        </div>
       </div>
 
       <details open>
-        <summary><strong>event</strong> – evento in presenza con streaming e biglietti</summary>
-        <div class="hl">
-          <button class="copy" data-copy="#ex-event">Copia</button>
-          <button class="copy ghost" data-download="#ex-event" data-filename="event.json">Scarica</button>
+        <summary><strong>event</strong> – completo</summary>
+        <button class="copy" data-copy="#ex-event">Copia</button>
 <pre id="ex-event">{
-  "type": "event",
-  "title": "Workshop di biologia marina",
-  "summary": "Metodi di monitoraggio costiero **pratici**",
-  "status": "published",
-  "priority": 1,
-  "published_at": "2025-09-01T09:00",
-  "partner_ids": [1, 2],
-  "payload": {
-    "schema_version": 1,
-    "tags": ["workshop", "monitoraggio", "marine"],
-    "seo": {"slug": "workshop-biologia-marina", "keywords": ["biologia", "monitoraggio"], "image": "https://example.org/img/cover.jpg"},
-    "attachments": [{"label": "Programma PDF", "url": "https://example.org/program.pdf", "type": "pdf"}],
-    "media": [
-      {"type": "image", "url": "https://example.org/img/locandina.jpg", "caption": "Locandina", "alt": "Locandina workshop"},
-      {"type": "video", "url": "https://video.example.org/stream.mp4", "provider": "file", "caption": "Promo"},
-      {"type": "gallery", "items": [
-        {"type": "image", "url": "https://example.org/img/1.jpg", "alt": "Sessione"},
-        {"type": "image", "url": "https://example.org/img/2.jpg", "alt": "Laboratorio"}
-      ]}
-    ],
-    "links": [{"label": "Sito evento", "url": "https://example.org/evento", "external": true}],
-    "contacts": [{"name": "Segreteria", "email": "info@example.org", "url": "https://example.org"}],
-    "notes_md": "Note interne…",
+  "schema_version": 1,
+  "tags": ["workshop", "marine"],
+  "seo": {"slug": "workshop-biologia-marina", "keywords": ["biologia", "monitoraggio"], "image": "https://example.org/img/cover.jpg"},
+  "attachments": [{"label": "Programma PDF", "url": "https://example.org/program.pdf", "type": "pdf"}],
+  "media": [
+    {"type": "image", "url": "https://example.org/img/locandina.jpg", "caption": "Locandina", "alt": "Locandina workshop"},
+    {"type": "video", "url": "https://video.example.org/stream.mp4", "provider": "file", "caption": "Promo"}
+  ],
+  "links": [{"label": "Sito evento", "url": "https://example.org/evento", "external": true}],
+  "contacts": [{"name": "Segreteria", "email": "info@example.org"}],
+  "notes_md": "Note interne…",
 
-    "start_at": "2025-09-12T10:00:00",
-    "end_at": "2025-09-12T16:00:00",
-    "timezone": "Europe/Rome",
-    "venue": {"name": "Università di Napoli", "address": "Via Partenope 36, Napoli", "lat": 40.83, "lon": 14.25, "room": "Aula Magna", "map_url": "https://maps.example.org/venue"},
-    "online": false,
-    "livestream": {"enabled": true, "platform": "YouTube", "url": "https://youtube.com/live/abc"},
-    "registration": {"required": true, "url": "https://tickets.example.org/reg", "deadline": "2025-09-10T18:00:00"},
-    "agenda": [
-      {"time": "10:00", "title": "Apertura", "speakers": ["Comitato"]},
-      {"time": "10:30", "title": "Tecniche di eDNA", "speakers": ["Dott.ssa Rossi", "Dott. Bianchi"]}
-    ],
-    "speakers": [
-      {"name": "Dott.ssa Maria Rossi", "affiliation": "UniNapoli", "bio": "Ricercatrice in ecologia marina"},
-      {"name": "Dott. Luca Bianchi", "affiliation": "CNR", "bio": "Modelli di habitat"}
-    ],
-    "tickets": {"free": false, "capacity": 200, "sold": 57, "price_eur": 25}
-  }
+  "start_at": "2025-09-12T10:00:00",
+  "end_at": "2025-09-12T16:00:00",
+  "timezone": "Europe/Rome",
+  "venue": {"name": "Università di Napoli", "address": "Via Partenope 36, Napoli", "lat": 40.83, "lon": 14.25, "room": "Aula Magna", "map_url": "https://maps.example.org/venue"},
+  "online": false,
+  "livestream": {"enabled": true, "platform": "YouTube", "url": "https://youtube.com/live/abc"},
+  "registration": {"required": true, "url": "https://tickets.example.org/reg", "deadline": "2025-09-10T18:00:00"},
+  "agenda": [
+    {"time": "10:00", "title": "Apertura", "speakers": ["Comitato"]},
+    {"time": "10:30", "title": "Tecniche di eDNA", "speakers": ["Dott.ssa Rossi", "Dott. Bianchi"]}
+  ],
+  "speakers": [
+    {"name": "Dott.ssa Maria Rossi", "affiliation": "UniNapoli", "bio": "Ricercatrice in ecologia marina"},
+    {"name": "Dott. Luca Bianchi", "affiliation": "CNR", "bio": "Modelli di habitat"}
+  ],
+  "tickets": {"free": false, "capacity": 200, "sold": 57, "price_eur": 25}
 }
 </pre>
-        </div>
       </details>
 
       <details>
-        <summary><strong>collaboration</strong> – proposta progettuale</summary>
-        <div class="hl">
-          <button class="copy" data-copy="#ex-collab">Copia</button>
-          <button class="copy ghost" data-download="#ex-collab" data-filename="collaboration.json">Scarica</button>
+        <summary><strong>collaboration</strong> – proposta</summary>
+        <button class="copy" data-copy="#ex-collab">Copia</button>
 <pre id="ex-collab">{
-  "type": "collaboration",
-  "title": "Rete di sensori costieri open-source",
-  "summary": "Partnership per rete di boe a basso costo",
-  "status": "approved",
-  "priority": 0,
-  "partner_ids": [3],
-  "payload": {
-    "schema_version": 1,
-    "tags": ["collab", "hardware"],
-    "seo": {"slug": "rete-sensori-costieri"},
-    "links": [{"label": "Repository", "url": "https://example.org/repo", "external": true}],
-
-    "goal": "Sviluppo di una rete di sensori meteo-marine open-source",
-    "work_packages": ["Progettazione HW", "Firmware", "Integrazione API", "Deployment"],
-    "timeline": {
-      "start": "2025-10-01",
-      "end": "2026-03-31",
-      "milestones": [
-        {"date": "2025-11-15", "title": "Prototipo v1"},
-        {"date": "2026-01-15", "title": "Test costieri"}
-      ]
-    },
-    "requirements": {
-      "tech": ["ESP32", "LoRaWAN", "Flask API"],
-      "non_tech": ["Permessi locali", "Contratti hosting"]
-    },
-    "funding": {"status": "in_progress", "sources": ["EIC", "Fondazioni"]}
-  }
+  "schema_version": 1,
+  "tags": ["collab", "hardware"],
+  "seo": {"slug": "rete-sensori-costieri"},
+  "links": [{"label": "Repository", "url": "https://example.org/repo", "external": true}],
+  "goal": "Sviluppo di una rete di sensori meteo-marine open-source",
+  "work_packages": ["Progettazione HW", "Firmware", "Integrazione API", "Deployment"],
+  "timeline": {
+    "start": "2025-10-01",
+    "end": "2026-03-31",
+    "milestones": [
+      {"date": "2025-11-15", "title": "Prototipo v1"},
+      {"date": "2026-01-15", "title": "Test costieri"}
+    ]
+  },
+  "requirements": {
+    "tech": ["ESP32", "LoRaWAN", "Flask API"],
+    "non_tech": ["Permessi locali", "Contratti hosting"]
+  },
+  "funding": {"status": "in_progress", "sources": ["EIC", "Fondazioni"]}
 }
 </pre>
-        </div>
       </details>
 
       <details>
-        <summary><strong>announcement</strong> – rilascio piattaforma</summary>
-        <div class="hl">
-          <button class="copy" data-copy="#ex-ann">Copia</button>
-          <button class="copy ghost" data-download="#ex-ann" data-filename="announcement.json">Scarica</button>
+        <summary><strong>announcement</strong> – rilascio</summary>
+        <button class="copy" data-copy="#ex-ann">Copia</button>
 <pre id="ex-ann">{
-  "type": "announcement",
-  "title": "Nuova console amministrativa",
-  "summary": "Gestione eventi più rapida",
-  "status": "published",
-  "priority": 2,
-  "published_at": "2025-08-01T10:00",
-  "payload": {
-    "schema_version": 1,
-    "tags": ["release", "admin"],
-    "changelog": [
-      "Creazione eventi semplificata",
-      "Editor markdown migliorato"
-    ],
-    "breaking_changes": ["Aggiornare le chiavi API per l'upload"],
-    "docs_url": "https://docs.example.org/console",
-    "rollout": {"type": "gradual", "percent": 25}
-  }
+  "schema_version": 1,
+  "tags": ["release", "admin"],
+  "changelog": [
+    "Creazione eventi semplificata",
+    "Editor markdown migliorato"
+  ],
+  "breaking_changes": ["Aggiornare le chiavi API per l'upload"],
+  "docs_url": "https://docs.example.org/console",
+  "rollout": {"type": "gradual", "percent": 25}
 }
 </pre>
-        </div>
       </details>
 
       <details>
         <summary><strong>news</strong> – comunicato</summary>
-        <div class="hl">
-          <button class="copy" data-copy="#ex-news">Copia</button>
-          <button class="copy ghost" data-download="#ex-news" data-filename="news.json">Scarica</button>
+        <button class="copy" data-copy="#ex-news">Copia</button>
 <pre id="ex-news">{
-  "type": "news",
-  "title": "Progetto eDNA: primi risultati",
-  "summary": "Dataset preliminare disponibile",
-  "status": "published",
-  "priority": 0,
-  "payload": {
-    "schema_version": 1,
-    "tags": ["edna", "dataset"],
-    "seo": {"slug": "edna-primi-risultati", "keywords": ["edna", "monitoraggio"]},
-    "body_md": "Abbiamo rilasciato i primi risultati del progetto **eDNA**…",
-    "quotes": [
-      {"author": "Coordinatore Progetto", "text": "Risultati incoraggianti"}
-    ],
-    "media": [{"type": "image", "url": "https://example.org/edna.jpg", "alt": "Campionamento"}]
-  }
+  "schema_version": 1,
+  "tags": ["edna", "dataset"],
+  "seo": {"slug": "edna-primi-risultati", "keywords": ["edna", "monitoraggio"]},
+  "body_md": "Abbiamo rilasciato i primi risultati del progetto **eDNA**…",
+  "quotes": [
+    {"author": "Coordinatore Progetto", "text": "Risultati incoraggianti"}
+  ],
+  "media": [{"type": "image", "url": "https://example.org/edna.jpg", "alt": "Campionamento"}]
 }
 </pre>
-        </div>
       </details>
     </section>
 
     <section id="generator" class="section card">
-      <h2>Generatore JSON</h2>
+      <h2>Generatore di payload</h2>
       <div class="grid two">
         <div>
           <label>Tipo</label>
@@ -508,21 +303,28 @@
             <button id="gen-pretty">Formatta</button>
             <button id="gen-minify">Minifica</button>
             <button class="ghost" id="gen-copy">Copia</button>
-            <button class="ghost" id="gen-download">Scarica</button>
-            <button class="ghost" id="gen-validate">Valida</button>
           </div>
         </div>
         <div>
-          <textarea id="gen-output" class="input" style="width:100%;min-height:220px" spellcheck="false" placeholder="Qui apparirà lo JSON…"></textarea>
+          <textarea id="gen-output" class="input" style="width:100%;min-height:220px" spellcheck="false" placeholder="Qui apparirà il payload…"></textarea>
         </div>
       </div>
     </section>
 
     <section id="validator" class="section card">
-      <h2>Validatore basilare</h2>
-      <p class="muted">Controlli implementati: proprietà root ammesse, obbligatorie (<code>type</code>, <code>title</code>), enum e formati principali, vincoli numerici, alcune regole per <code>payload</code> per tipo. Questo non sostituisce un validatore JSON Schema completo.</p>
+      <h2>Validatore di payload (controlli base)</h2>
+      <p class="muted">Seleziona il tipo per applicare le regole corrette. Non sostituisce un validatore JSON Schema completo.</p>
       <div class="grid two">
-        <textarea id="val-input" class="input" style="width:100%;min-height:240px" spellcheck="false" placeholder="Incolla qui il JSON da verificare…"></textarea>
+        <div>
+          <label>Tipo</label>
+          <select id="val-type">
+            <option value="event">event</option>
+            <option value="collaboration">collaboration</option>
+            <option value="announcement">announcement</option>
+            <option value="news">news</option>
+          </select>
+          <textarea id="val-input" class="input" style="width:100%;min-height:240px;margin-top:8px" spellcheck="false" placeholder="Incolla qui il payload da verificare…"></textarea>
+        </div>
         <div>
           <div style="display:flex;gap:8px;margin-bottom:8px">
             <button class="primary" id="val-run">Valida</button>
@@ -534,202 +336,65 @@
       </div>
     </section>
 
-    <section class="footer">
-      Schema: draft/2020-12. Le denominazioni sono vincolanti. Usa campi e formati esatti.
-    </section>
-
   </main>
 </div>
 
 <script>
 (function(){
-  const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
-
-  // Theme toggle
-  const themeBtn = $('#theme');
-  let light = false;
-  themeBtn.addEventListener('click', ()=>{
-    light = !light; document.documentElement.classList.toggle('light', light);
-    themeBtn.setAttribute('aria-pressed', String(light));
-  });
+  const $ = s=>document.querySelector(s); const $$ = s=>Array.from(document.querySelectorAll(s));
+  // Theme
+  $('#theme').addEventListener('click', e=>{ const on=document.documentElement.classList.toggle('light'); e.currentTarget.setAttribute('aria-pressed', String(on)); });
 
   // Tabs
-  $$('.tabbar button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      $$('.tabbar button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      ['event','collaboration','announcement','news'].forEach(k=>{
-        const el = document.getElementById('tab-'+k);
-        el.hidden = (k!==btn.dataset.tab);
-      });
-    })
-  });
+  $$('.tabbar button').forEach(b=>b.addEventListener('click',()=>{ $$('.tabbar button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); ['event','collaboration','announcement','news'].forEach(k=>{ const el=$('#tab-'+k); el.hidden = (k!==b.dataset.tab); }); }));
 
-  // Search filter over tables rows
-  const search = $('#search');
-  search.addEventListener('input', ()=>{
-    const q = search.value.toLowerCase().trim();
-    $$('table tbody tr').forEach(tr=>{
-      if(!q){ tr.classList.remove('hide'); return; }
-      const text = tr.innerText.toLowerCase();
-      tr.classList.toggle('hide', !text.includes(q));
-    });
-  });
+  // Copy helpers
+  function getText(sel){ const el=document.querySelector(sel); return el?el.textContent:''; }
+  $$('.copy').forEach(btn=>btn.addEventListener('click',()=>navigator.clipboard.writeText(getText(btn.dataset.copy))));
+  const all = ['#ex-event','#ex-collab','#ex-ann','#ex-news'];
+  document.getElementById('copyAllExamples')?.addEventListener('click',()=>{ const blocks=all.map(getText); navigator.clipboard.writeText(blocks.join('\n\n')); });
 
-  // Expand/Collapse all details
-  $('#expandAll').addEventListener('click', ()=>{$$('details').forEach(d=>d.open=true)});
-  $('#collapseAll').addEventListener('click', ()=>{$$('details').forEach(d=>d.open=false)});
-
-  // Copy & Download helpers
-  function getText(sel){ const el = document.querySelector(sel); return el ? el.textContent : ''; }
-  function download(text, filename){
-    const blob = new Blob([text], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href);
-  }
-  $$('.copy').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
-      const copySel = btn.dataset.copy;
-      const dlSel = btn.dataset.download;
-      if(copySel){ navigator.clipboard.writeText(getText(copySel)); }
-      if(dlSel){ const name = btn.dataset.filename || 'data.json'; download(getText(dlSel), name); }
-    });
-  });
-
-  // Copy Root table as CSV
-  $('#copyRoot').addEventListener('click', ()=>{
-    const rows = Array.from(document.querySelectorAll('#rootTable tr')).map(tr=>Array.from(tr.children).map(td=>`"${td.innerText.replaceAll('"','\"')}"`).join(','));
-    navigator.clipboard.writeText(rows.join('\n'));
-  });
-
-  // Copy all examples concatenated
-  $('#copyAllExamples').addEventListener('click', ()=>{
-    const blocks = ['#ex-event','#ex-collab','#ex-ann','#ex-news'].map(getText);
-    navigator.clipboard.writeText(blocks.join('\n\n'));
-  });
-
-  // Generator
-  const genOut = $('#gen-output');
-  const genType = $('#gen-type');
+  // Generator (payload only)
+  const genOut=document.getElementById('gen-output'); const genType=document.getElementById('gen-type');
+  const baseCommon = { schema_version:1 };
   const skel = {
-    base: (type)=>({
-      type, title: "Titolo", summary: "Riassunto", status: "draft", priority: 0, partner_ids: [], payload: { schema_version: 1 }
-    }),
-    event: ()=>({
-      ...skel.base('event'),
-      payload: {
-        schema_version: 1,
-        start_at: "2025-01-01T10:00:00",
-        end_at: "2025-01-01T12:00:00",
-        timezone: "Europe/Rome",
-        venue: { name: "Sede" },
-        online: false
-      }
-    }),
-    collaboration: ()=>({
-      ...skel.base('collaboration'),
-      payload: { schema_version: 1, goal: "Obiettivo", work_packages: ["WP1"], requirements:{ tech:[], non_tech:[] } }
-    }),
-    announcement: ()=>({
-      ...skel.base('announcement'),
-      payload: { schema_version: 1, changelog: ["Novità"], rollout:{ type:"global", percent:100 } }
-    }),
-    news: ()=>({
-      ...skel.base('news'),
-      payload: { schema_version: 1, body_md: "Testo" }
-    })
+    event: ()=>({ ...baseCommon, start_at:"2025-01-01T10:00:00", end_at:"2025-01-01T12:00:00", timezone:"Europe/Rome", venue:{ name:"Sede" }, online:false }),
+    collaboration: ()=>({ ...baseCommon, goal:"Obiettivo", work_packages:["WP1"], requirements:{ tech:[], non_tech:[] } }),
+    announcement: ()=>({ ...baseCommon, changelog:["Novità"], rollout:{ type:"global", percent:100 } }),
+    news: ()=>({ ...baseCommon, body_md:"Testo" })
   };
-  $('#gen-build').addEventListener('click', ()=>{
-    const t = genType.value; const data = skel[t](); genOut.value = JSON.stringify(data, null, 2);
-  });
-  $('#gen-pretty').addEventListener('click', ()=>{ try{ genOut.value = JSON.stringify(JSON.parse(genOut.value), null, 2);}catch{}});
-  $('#gen-minify').addEventListener('click', ()=>{ try{ genOut.value = JSON.stringify(JSON.parse(genOut.value)); }catch{}});
-  $('#gen-copy').addEventListener('click', ()=>{ navigator.clipboard.writeText(genOut.value); });
-  $('#gen-download').addEventListener('click', ()=>{ const name = (JSON.parse(genOut.value).type||'data')+'.json'; download(genOut.value, name); });
-  $('#gen-validate').addEventListener('click', ()=>{ $('#val-input').value = genOut.value; runValidation(); window.location.hash = '#validator'; });
+  document.getElementById('gen-build').addEventListener('click',()=>{ const t=genType.value; genOut.value = JSON.stringify(skel[t](), null, 2); });
+  document.getElementById('gen-pretty').addEventListener('click',()=>{ try{ genOut.value = JSON.stringify(JSON.parse(genOut.value), null, 2);}catch{} });
+  document.getElementById('gen-minify').addEventListener('click',()=>{ try{ genOut.value = JSON.stringify(JSON.parse(genOut.value)); }catch{} });
+  document.getElementById('gen-copy').addEventListener('click',()=>navigator.clipboard.writeText(genOut.value));
 
-  // Validator – light checks (not full JSON Schema)
-  const patt = {
-    published_at: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
-    isoDateTime: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/,
-    isoDate: /^\d{4}-\d{2}-\d{2}$/,
-    time: /^[0-2]\d:[0-5]\d$/,
-    email: /.+@.+\..+/
-  };
-  const ROOT_KEYS = new Set(['id','type','title','summary','status','priority','published_at','partner_ids','payload']);
-  const TYPES = ['event','collaboration','announcement','news'];
-  const STATUS = ['draft','approved','published','archived'];
-
-  function v(obj){ const errs=[]; const add=(p,m)=>errs.push({path:p,msg:m});
-    if(typeof obj!== 'object' || Array.isArray(obj) || obj===null) { add('$','Deve essere un oggetto'); return errs; }
-    // additionalProperties false at root
-    Object.keys(obj).forEach(k=>{ if(!ROOT_KEYS.has(k)) add(k,'Proprietà non ammessa a livello root'); });
-    // required
-    if(!('type' in obj)) add('type','Obbligatorio');
-    if(!('title' in obj)) add('title','Obbligatorio');
-    // type
-    if('type' in obj && !TYPES.includes(obj.type)) add('type','Valore non valido');
-    // title
-    if('title' in obj){ const s=obj.title+''; if(s.length<1||s.length>140) add('title','Lunghezza 1–140'); }
-    // summary
-    if('summary' in obj){ if(typeof obj.summary!=='string') add('summary','Deve essere stringa'); if((obj.summary||'').length>300) add('summary','Max 300'); }
-    // status
-    if('status' in obj && !STATUS.includes(obj.status)) add('status','Valore non valido');
-    // priority
-    if('priority' in obj){ if(!Number.isInteger(obj.priority)) add('priority','Intero'); else if(obj.priority<-10||obj.priority>10) add('priority','Range -10..10'); }
-    // id
-    if('id' in obj){ if(!Number.isInteger(obj.id) || obj.id<1) add('id','Intero ≥1'); }
-    // published_at
-    if('published_at' in obj && obj.published_at!==null){ if(!patt.published_at.test(obj.published_at)) add('published_at','Formato YYYY-MM-DDTHH:mm'); }
-    // partner_ids
-    if('partner_ids' in obj){ if(!Array.isArray(obj.partner_ids)) add('partner_ids','Deve essere array'); else {
-      const set=new Set(); obj.partner_ids.forEach((v,i)=>{ if(!Number.isInteger(v) || v<1) add(`partner_ids[${i}]`,'Intero ≥1'); if(set.has(v)) add(`partner_ids[${i}]`,'Duplicato'); set.add(v); });
-    }}
-
-    // payload per type
-    const t=obj.type;
-    if('payload' in obj){ const p=obj.payload; if(typeof p!=='object'||p===null||Array.isArray(p)) add('payload','Deve essere oggetto'); else {
-      // commonPayload checks
-      if('schema_version' in p){ if(!Number.isInteger(p.schema_version) || p.schema_version<1) add('payload.schema_version','Intero ≥1'); }
-      if('tags' in p){ if(!Array.isArray(p.tags)) add('payload.tags','Array'); else { const set=new Set(); p.tags.forEach((s,i)=>{ if(typeof s!=='string'||s.length<1||s.length>24) add(`payload.tags[${i}]`,'Stringa 1–24'); if(set.has(s)) add(`payload.tags[${i}]`,'Duplicato'); set.add(s); }); }}
-      if('contacts' in p){ if(!Array.isArray(p.contacts)) add('payload.contacts','Array'); else { p.contacts.forEach((c,i)=>{ if(typeof c.name!=='string'||c.name.length<1) add(`payload.contacts[${i}].name`,'Obbligatorio'); if('email' in c && !patt.email.test(c.email)) add(`payload.contacts[${i}].email`,'Email non valida'); }); }}
-
-      if(t==='event'){
-        // start/end
-        const hasStart = 'start_at' in p, hasEnd = 'end_at' in p;
-        if(hasStart ^ hasEnd) add('payload.start_at|end_at','Se presente uno, servono entrambi');
-        if(hasStart && !patt.isoDateTime.test(p.start_at)) add('payload.start_at','Formato ISO con secondi');
-        if(hasEnd && !patt.isoDateTime.test(p.end_at)) add('payload.end_at','Formato ISO con secondi');
-        if('timezone' in p && (typeof p.timezone!=='string' || p.timezone.length<3)) add('payload.timezone','IANA ≥ 3 char');
-        if('agenda' in p){ if(!Array.isArray(p.agenda)) add('payload.agenda','Array'); else p.agenda.forEach((a,i)=>{ if(!patt.time.test(a.time||'')) add(`payload.agenda[${i}].time`,'HH:mm'); if(typeof a.title!=='string'||!a.title) add(`payload.agenda[${i}].title`,'Obbligatorio'); }); }
-        if('speakers' in p){ if(!Array.isArray(p.speakers)) add('payload.speakers','Array'); else p.speakers.forEach((s,i)=>{ if(typeof s.name!=='string'||!s.name) add(`payload.speakers[${i}].name`,'Obbligatorio'); }); }
-        if('tickets' in p){ const tk=p.tickets; if(typeof tk!=='object'||tk===null) add('payload.tickets','Oggetto'); else if('free' in tk && typeof tk.free!=='boolean') add('payload.tickets.free','Booleano'); }
-      }
-      if(t==='announcement'){
-        if('rollout' in p){ const r=p.rollout; if(typeof r==='object'&&r){ if('type' in r && !['global','gradual','canary'].includes(r.type)) add('payload.rollout.type','Valore non valido'); if('percent' in r && (!Number.isInteger(r.percent)||r.percent<0||r.percent>100)) add('payload.rollout.percent','0..100'); }}
-      }
-      if(t==='collaboration'){
-        if('funding' in p){ const f=p.funding; if(typeof f==='object'&&f){ if('status' in f && !['secured','in_progress','needed'].includes(f.status)) add('payload.funding.status','Valore non valido'); }}
-      }
-    }}
-    return errs;
+  // Validator (payload-only)
+  const patt = { isoDateTime:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/, isoDate:/^\d{4}-\d{2}-\d{2}$/, time:/^[0-2]\d:[0-5]\d$/, email:/.+@.+\..+/ };
+  function vPayload(obj,type){ const e=[]; const add=(p,m)=>e.push({path:p,msg:m});
+    if(typeof obj!== 'object' || Array.isArray(obj) || obj===null){ add('$','Deve essere un oggetto'); return e; }
+    if('schema_version' in obj && (!Number.isInteger(obj.schema_version) || obj.schema_version<1)) add('schema_version','Intero ≥1');
+    if('tags' in obj){ if(!Array.isArray(obj.tags)) add('tags','Array'); else { const set=new Set(); obj.tags.forEach((t,i)=>{ if(typeof t!=='string'||t.length<1||t.length>24) add(`tags[${i}]`,'Stringa 1–24'); if(set.has(t)) add(`tags[${i}]`,'Duplicato'); set.add(t); }); }}
+    if('contacts' in obj){ if(!Array.isArray(obj.contacts)) add('contacts','Array'); else obj.contacts.forEach((c,i)=>{ if(typeof c.name!=='string'||!c.name) add(`contacts[${i}].name`,'Obbligatorio'); if('email' in c && !patt.email.test(c.email)) add(`contacts[${i}].email`,'Email non valida'); }); }
+    if(type==='event'){
+      const hasStart='start_at' in obj, hasEnd='end_at' in obj; if(hasStart^hasEnd) add('start_at|end_at','Entrambi obbligatori se uno è presente');
+      if(hasStart && !patt.isoDateTime.test(obj.start_at)) add('start_at','YYYY-MM-DDTHH:mm:ss');
+      if(hasEnd && !patt.isoDateTime.test(obj.end_at)) add('end_at','YYYY-MM-DDTHH:mm:ss');
+      if('agenda' in obj){ if(!Array.isArray(obj.agenda)) add('agenda','Array'); else obj.agenda.forEach((a,i)=>{ if(!patt.time.test(a.time||'')) add(`agenda[${i}].time`,'HH:mm'); if(typeof a.title!=='string'||!a.title) add(`agenda[${i}].title`,'Obbligatorio'); }); }
+      if('speakers' in obj){ if(!Array.isArray(obj.speakers)) add('speakers','Array'); else obj.speakers.forEach((s,i)=>{ if(typeof s.name!=='string'||!s.name) add(`speakers[${i}].name`,'Obbligatorio'); }); }
+      if('tickets' in obj){ const t=obj.tickets; if(typeof t!=='object'||t===null) add('tickets','Oggetto'); else if('free' in t && typeof t.free!=='boolean') add('tickets.free','Booleano'); }
+    }
+    if(type==='announcement'){
+      if('rollout' in obj){ const r=obj.rollout||{}; if('type' in r && !['global','gradual','canary'].includes(r.type)) add('rollout.type','Valore non valido'); if('percent' in r && (!Number.isInteger(r.percent)||r.percent<0||r.percent>100)) add('rollout.percent','0..100'); }
+    }
+    if(type==='collaboration'){
+      if('funding' in obj){ const f=obj.funding||{}; if('status' in f && !['secured','in_progress','needed'].includes(f.status)) add('funding.status','Valore non valido'); }
+    }
+    return e;
   }
-
-  function renderResult(list){
-    const box = $('#val-result');
-    if(!list.length){ box.innerHTML = `<div class="badge ok">OK</div> Nessun errore rilevato (controlli base).`; box.style.borderLeft = '4px solid var(--good)'; return; }
-    const items = list.map(e=>`<li><code>${e.path}</code> — ${e.msg}</li>`).join('');
-    box.innerHTML = `<div class="badge bad">ERRORI</div><ul>${items}</ul>`; box.style.borderLeft = '4px solid var(--bad)';
-  }
-
-  function runValidation(){
-    try{ const obj = JSON.parse($('#val-input').value); renderResult(v(obj)); }
-    catch(err){ renderResult([{path:'$', msg:'JSON non valido: '+err.message}]); }
-  }
-  $('#val-run').addEventListener('click', runValidation);
-  $('#val-pretty').addEventListener('click', ()=>{ try{ const o=JSON.parse($('#val-input').value); $('#val-input').value = JSON.stringify(o, null, 2);}catch{}});
-  $('#val-minify').addEventListener('click', ()=>{ try{ const o=JSON.parse($('#val-input').value); $('#val-input').value = JSON.stringify(o);}catch{}});
+  function render(list){ const box=document.getElementById('val-result'); if(!list.length){ box.innerHTML='<div class="badge ok">OK</div> Nessun errore (controlli base).'; box.style.borderLeft='4px solid var(--good)'; return;} const items=list.map(x=>`<li><code>${x.path}</code> — ${x.msg}</li>`).join(''); box.innerHTML=`<div class="badge bad">ERRORI</div><ul>${items}</ul>`; box.style.borderLeft='4px solid var(--bad)'; }
+  document.getElementById('val-run').addEventListener('click',()=>{ try{ const o=JSON.parse(document.getElementById('val-input').value); render(vPayload(o,document.getElementById('val-type').value)); }catch(err){ render([{path:'$',msg:'JSON non valido: '+err.message}]); }});
+  document.getElementById('val-pretty').addEventListener('click',()=>{ try{ const o=JSON.parse(document.getElementById('val-input').value); document.getElementById('val-input').value=JSON.stringify(o,null,2);}catch{} });
+  document.getElementById('val-minify').addEventListener('click',()=>{ try{ const o=JSON.parse(document.getElementById('val-input').value); document.getElementById('val-input').value=JSON.stringify(o);}catch{} });
 })();
 </script>
 </body>
