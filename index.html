@@ -1,902 +1,552 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<title>Suggestion JSON Editor — semplice</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-  :root{--bg:#0b1020;--card:#141a2e;--muted:#9fb0d3;--accent:#4aa3ff;--ok:#3cc26b;--warn:#ffcc00;--err:#ff5a5a;--mono:#101623}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:#e9eefc;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;line-height:1.35}
-  header{padding:16px 20px;border-bottom:1px solid #1e2746;position:sticky;top:0;background:linear-gradient(180deg,#0b1020,rgba(11,16,32,.9))}
-  header h1{margin:0;font-size:18px}
-  .wrap{display:grid;grid-template-columns:380px 1fr;gap:16px;padding:16px}
-  @media (max-width:1100px){.wrap{grid-template-columns:1fr}}
-  .panel{background:var(--card);border:1px solid #1e2746;border-radius:10px}
-  .panel .head{padding:10px 14px;border-bottom:1px solid #1e2746;font-weight:600}
-  .panel .body{padding:12px}
-  .grid{display:grid;gap:8px}
-  .two{grid-template-columns:1fr 1fr}
-  .three{grid-template-columns:1fr 1fr 1fr}
-  label{display:grid;gap:6px;font-size:12px;color:var(--muted)}
-  input,select,textarea{width:100%;padding:9px 10px;border-radius:8px;border:1px solid #223055;background:#0e1426;color:#e9eefc;font-size:14px}
-  textarea{min-height:76px;resize:vertical}
-  .row{display:flex;gap:8px;flex-wrap:wrap}
-  .btn{padding:8px 10px;border-radius:8px;border:1px solid #223055;background:#0e1426;color:#e9eefc;cursor:pointer;font-size:13px}
-  .btn:hover{border-color:#2f467e}
-  .btn.acc{background:var(--accent);border-color:var(--accent);color:#03102a}
-  .btn.ok{background:var(--ok);border-color:var(--ok);color:#07140e}
-  .btn.warn{background:var(--warn);border-color:var(--warn);color:#241a00}
-  .btn.err{background:var(--err);border-color:var(--err);color:#280606}
-  .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #2a375f;color:#b9c7e8;font-size:11px;margin-left:8px}
-  .list{display:grid;gap:8px}
-  .card{border:1px dashed #2a375f;border-radius:10px;padding:10px}
-  .mono{background:var(--mono);border-radius:10px;padding:10px;white-space:pre;overflow:auto;line-height:1.25;font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;font-size:13px;max-height:52vh}
-  .help{font-size:12px;color:#b7c6ea}
-  .tiny{font-size:11px;color:#7d8db4}
-  .k{color:#95b5ff}
-  .v{color:#a8f0c6}
-  .errline{background:#361b24}
-  details{border:1px solid #1e2746;border-radius:8px;padding:8px}
-  summary{cursor:pointer;color:#bcd1ff}
-  .toolbar .btn{padding:6px 8px}
-  .sep{height:1px;background:#1e2746;margin:12px -12px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Drag & Drop Payload Builder</title>
+  <style>
+    :root{
+      --bg:#0f172a; /* slate-900 */
+      --panel:#111827; /* gray-900 */
+      --muted:#1f2937; /* gray-800 */
+      --card:#0b1220; /* dark */
+      --text:#e5e7eb; /* gray-200 */
+      --sub:#9ca3af; /* gray-400 */
+      --accent:#22d3ee; /* cyan-400 */
+      --accent-2:#60a5fa; /* blue-400 */
+      --ok:#34d399; /* green-400 */
+      --warn:#f59e0b; /* amber-500 */
+      --err:#f87171; /* red-400 */
+      --border:#233047;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(180deg,#0b1020,#0f172a); color:var(--text); font:14px/1.4 system-ui,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+    }
+    header{
+      display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); background:rgba(17,24,39,.7); backdrop-filter:saturate(1.2) blur(6px); position:sticky; top:0; z-index:10;
+    }
+    header h1{font-size:16px; margin:0; letter-spacing:.4px}
+    .layout{display:grid; grid-template-columns:280px 1fr 420px; gap:12px; height:calc(100% - 54px); padding:12px}
+    .panel{background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:auto}
+
+    /* Palette */
+    .palette{padding:12px}
+    .group{margin-bottom:16px}
+    .group h3{margin:10px 6px; font-size:12px; color:var(--sub); text-transform:uppercase; letter-spacing:.12em}
+    .tile{
+      display:flex; align-items:center; gap:10px; padding:10px; margin:8px 6px; border:1px dashed #2a3a58; border-radius:10px; cursor:grab; user-select:none; background:linear-gradient(180deg,#0c1323,#0e1730);
+    }
+    .tile:hover{border-color:#3c4f77}
+    .tile .badge{font-size:10px; color:#94a3b8; background:#0b1220; padding:2px 6px; border-radius:999px; border:1px solid #2a3a58}
+
+    /* Canvas */
+    .canvas{
+      display:flex; flex-direction:column; padding:12px; gap:12px;
+    }
+    .dropzone{
+      flex:1; min-height:240px; border:2px dashed #233047; border-radius:14px; padding:12px; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; align-content:flex-start;
+    }
+    .dropzone.dragover{border-color:var(--accent)}
+    .hint{color:var(--sub); font-size:13px; padding:8px 4px}
+
+    .card{
+      background:linear-gradient(180deg,#0a111f,#0b1220); border:1px solid var(--border); border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:8px;
+    }
+    .card header{position:unset; background:transparent; border:none; padding:0; display:flex; align-items:center; justify-content:space-between}
+    .card h4{margin:0; font-size:13px}
+    .card .sub{color:var(--sub); font-size:12px}
+    .card .controls{display:flex; gap:8px}
+    .btn{background:#0c1424; border:1px solid #2a3a58; color:var(--text); padding:6px 10px; border-radius:10px; cursor:pointer}
+    .btn:hover{border-color:#3e5b8e}
+    .btn.warn{border-color:#5a3b10; background:#1a1405; color:#fbbf24}
+    .btn.danger{border-color:#5b2222; background:#1b0c0c; color:#fca5a5}
+    .btn.primary{border-color:#175b68; background:#0a1720; color:#67e8f9}
+    .row{display:grid; grid-template-columns:repeat(12,1fr); gap:8px}
+    .col-12{grid-column:span 12}
+    .col-6{grid-column:span 6}
+    .col-4{grid-column:span 4}
+    .col-3{grid-column:span 3}
+    label{display:block; font-size:12px; color:#a5b4fc; margin-bottom:4px}
+    input, select, textarea{width:100%; background:#0b1220; color:var(--text); border:1px solid #2a3a58; border-radius:10px; padding:8px}
+    textarea{min-height:88px; resize:vertical}
+
+    .kbar{display:flex; gap:8px; padding:8px}
+    .json-panel{display:flex; flex-direction:column}
+    .json-panel .out{flex:1; padding:10px; background:#0b1220; border-top:1px solid var(--border); font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; white-space:pre; overflow:auto}
+    .status{padding:8px 10px; color:#e5e7eb; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center}
+    .status .pill{font-size:11px; padding:2px 8px; border:1px solid #2a3a58; border-radius:999px; color:#93c5fd}
+
+    .list{display:flex; flex-direction:column; gap:8px}
+    .list .item{background:#0a1222; border:1px solid #223350; border-radius:10px; padding:8px}
+    .item .item-row{display:grid; grid-template-columns:repeat(12,1fr); gap:6px}
+
+    .ghost{opacity:.4}
+  </style>
 </head>
 <body>
-<header>
-  <h1>Suggestion JSON Editor <span class="badge">schema 2020-12</span></h1>
-</header>
-
-<div class="wrap">
-  <!-- LEFT: FORM -->
-  <section class="panel">
-    <div class="head">Campi principali</div>
-    <div class="body grid">
-      <div class="grid two">
-        <label>id <span class="tiny">intero ≥ 1, solo lettura se presente</span>
-          <input id="id" type="number" min="1" placeholder="opzionale" />
-        </label>
-        <label>type
-          <select id="type">
-            <option value="event">event</option>
-            <option value="collaboration">collaboration</option>
-            <option value="announcement">announcement</option>
-            <option value="news">news</option>
-          </select>
-        </label>
-      </div>
-      <label>title <span class="tiny">[1..140]</span>
-        <input id="title" maxlength="140" placeholder="Titolo" />
-      </label>
-      <label>summary <span class="tiny">Markdown inline sicuro, max 300</span>
-        <textarea id="summary" maxlength="300" placeholder="Sintesi breve"></textarea>
-      </label>
-
-      <div class="grid three">
-        <label>status
-          <select id="status">
-            <option value="">(default: draft)</option>
-            <option>draft</option><option>approved</option><option>published</option><option>archived</option>
-          </select>
-        </label>
-        <label>priority <span class="tiny">[-10..10]</span>
-          <input id="priority" type="number" min="-10" max="10" step="1" placeholder="0" />
-        </label>
-        <label>published_at <span class="tiny">YYYY-MM-DDTHH:mm</span>
-          <input id="published_at" placeholder="2025-08-18T09:30" />
-        </label>
-      </div>
-
-      <details>
-        <summary>Partner IDs <span class="tiny">array di interi unici ≥ 1</span></summary>
-        <div class="row toolbar" style="margin-top:8px">
-          <input id="pid_val" type="number" min="1" placeholder="es. 12" />
-          <button class="btn" onclick="addPartner()">Aggiungi</button>
-          <button class="btn warn" onclick="clearPartners()">Svuota</button>
-        </div>
-        <div id="partner_list" class="list" style="margin-top:8px"></div>
-      </details>
-
-      <details open>
-        <summary>Payload comune e specifico</summary>
-        <div class="grid two" style="margin-top:8px">
-          <label>tags (comma)
-            <input id="tags" placeholder="ai, marine, data" />
-          </label>
-          <label>notes_md
-            <input id="notes_md" placeholder="Note libere in Markdown" />
-          </label>
-        </div>
-
-        <details style="margin-top:8px">
-          <summary>SEO</summary>
-          <div class="grid two" style="margin-top:8px">
-            <label>slug <input id="seo_slug" maxlength="80" placeholder="min 3, max 80" /></label>
-            <label>keywords (comma) <input id="seo_keywords" placeholder="kw1, kw2" /></label>
-          </div>
-          <label>image URL <input id="seo_image" placeholder="https://..." /></label>
-        </details>
-
-        <div class="sep"></div>
-
-        <details>
-          <summary>Attachments</summary>
-          <div class="row toolbar" style="margin-top:8px">
-            <input id="att_label" placeholder="label" />
-            <input id="att_url" placeholder="https://..." />
-            <select id="att_type">
-              <option value="">(auto/omesso)</option>
-              <option>pdf</option><option>image</option><option>doc</option><option>sheet</option><option>other</option>
-            </select>
-            <button class="btn" onclick="addAttachment()">Aggiungi</button>
-            <button class="btn warn" onclick="clearList('attachments')">Svuota</button>
-          </div>
-          <div id="attachments" class="list" style="margin-top:8px"></div>
-        </details>
-
-        <details>
-          <summary>Media</summary>
-          <div class="row toolbar" style="margin-top:8px">
-            <select id="media_kind">
-              <option value="image">image</option>
-              <option value="video">video</option>
-              <option value="gallery">gallery</option>
-            </select>
-            <input id="media_url" placeholder="https://... (image/video)" />
-            <input id="media_caption" placeholder="caption (≤160)" />
-            <input id="media_alt" placeholder="alt (solo image)" />
-            <select id="media_provider">
-              <option value="">provider (video)</option>
-              <option>youtube</option><option>vimeo</option><option>file</option>
-            </select>
-            <button class="btn" onclick="addMedia()">Aggiungi</button>
-            <button class="btn warn" onclick="clearList('media')">Svuota</button>
-          </div>
-          <div id="media" class="list" style="margin-top:8px"></div>
-
-          <details style="margin-top:8px">
-            <summary>Aggiungi elemento a una gallery esistente</summary>
-            <div class="row toolbar" style="margin-top:8px">
-              <input id="gal_index" type="number" min="0" placeholder="index gallery" />
-              <select id="gal_item_kind">
-                <option value="image">image</option>
-                <option value="video">video</option>
-              </select>
-              <input id="gal_item_url" placeholder="https://..." />
-              <input id="gal_item_caption" placeholder="caption (≤160)" />
-              <input id="gal_item_alt" placeholder="alt (solo image)" />
-              <select id="gal_item_provider">
-                <option value="">provider (video)</option>
-                <option>youtube</option><option>vimeo</option><option>file</option>
-              </select>
-              <button class="btn" onclick="addToGallery()">Inserisci</button>
-            </div>
-          </details>
-        </details>
-
-        <details>
-          <summary>Links</summary>
-          <div class="row toolbar" style="margin-top:8px">
-            <input id="link_label" placeholder="label" />
-            <input id="link_url" placeholder="https://..." />
-            <input id="link_rel" placeholder="rel" />
-            <label style="display:flex;align-items:center;gap:6px">
-              <input id="link_external" type="checkbox" /> external
-            </label>
-            <button class="btn" onclick="addLink()">Aggiungi</button>
-            <button class="btn warn" onclick="clearList('links')">Svuota</button>
-          </div>
-          <div id="links" class="list" style="margin-top:8px"></div>
-        </details>
-
-        <details>
-          <summary>Contacts</summary>
-          <div class="row toolbar" style="margin-top:8px">
-            <input id="c_name" placeholder="name *" />
-            <input id="c_role" placeholder="role" />
-            <input id="c_email" placeholder="email" />
-            <input id="c_url" placeholder="https://..." />
-            <input id="c_avatar" placeholder="avatar_url https://..." />
-            <button class="btn" onclick="addContact()">Aggiungi</button>
-            <button class="btn warn" onclick="clearList('contacts')">Svuota</button>
-          </div>
-          <div id="contacts" class="list" style="margin-top:8px"></div>
-        </details>
-
-        <div class="sep"></div>
-
-        <details id="type_event" open>
-          <summary>Payload specifico: event</summary>
-          <div class="grid two" style="margin-top:8px">
-            <label>start_at <span class="tiny">YYYY-MM-DDTHH:mm:ss</span><input id="ev_start" placeholder="2025-08-18T09:00:00" /></label>
-            <label>end_at <span class="tiny">YYYY-MM-DDTHH:mm:ss</span><input id="ev_end" placeholder="2025-08-18T17:00:00" /></label>
-          </div>
-          <div class="grid two">
-            <label>timezone <input id="ev_tz" placeholder="es. Europe/Rome" /></label>
-            <label>online <select id="ev_online"><option value="">(omit)</option><option>true</option><option>false</option></select></label>
-          </div>
-
-          <details style="margin-top:8px">
-            <summary>Venue</summary>
-            <div class="grid two" style="margin-top:8px">
-              <label>name * <input id="v_name" /></label>
-              <label>address <input id="v_addr" /></label>
-            </div>
-            <div class="grid three">
-              <label>lat <input id="v_lat" type="number" step="any" /></label>
-              <label>lon <input id="v_lon" type="number" step="any" /></label>
-              <label>room <input id="v_room" /></label>
-            </div>
-            <label>map_url <input id="v_map" placeholder="https://..." /></label>
-            <div class="row" style="margin-top:8px">
-              <button class="btn" onclick="setVenue()">Imposta venue</button>
-              <button class="btn warn" onclick="removeVenue()">Rimuovi venue</button>
-            </div>
-          </details>
-
-          <details style="margin-top:8px">
-            <summary>Livestream</summary>
-            <div class="grid two" style="margin-top:8px">
-              <label>enabled <select id="ls_enabled"><option value="">(omit)</option><option>true</option><option>false</option></select></label>
-              <label>platform <input id="ls_platform" /></label>
-            </div>
-            <label>url <input id="ls_url" placeholder="https://..." /></label>
-            <div class="row" style="margin-top:8px">
-              <button class="btn" onclick="setLivestream()">Imposta livestream</button>
-              <button class="btn warn" onclick="removeLivestream()">Rimuovi livestream</button>
-            </div>
-          </details>
-
-          <details style="margin-top:8px">
-            <summary>Registration</summary>
-            <div class="grid two" style="margin-top:8px">
-              <label>required <select id="rg_required"><option value="">(omit)</option><option>true</option><option>false</option></select></label>
-              <label>url <input id="rg_url" placeholder="https://..." /></label>
-            </div>
-            <label>deadline <span class="tiny">YYYY-MM-DDTHH:mm:ss</span><input id="rg_deadline" placeholder="2025-08-31T23:59:59" /></label>
-            <div class="row" style="margin-top:8px">
-              <button class="btn" onclick="setRegistration()">Imposta registration</button>
-              <button class="btn warn" onclick="removeRegistration()">Rimuovi registration</button>
-            </div>
-          </details>
-
-          <details style="margin-top:8px">
-            <summary>Agenda</summary>
-            <div class="row toolbar" style="margin-top:8px">
-              <input id="ag_time" placeholder="HH:mm" />
-              <input id="ag_title" placeholder="titolo *" />
-              <input id="ag_speakers" placeholder="speakers (comma)" />
-              <button class="btn" onclick="addAgenda()">Aggiungi</button>
-              <button class="btn warn" onclick="clearList('agenda')">Svuota</button>
-            </div>
-            <div id="agenda" class="list" style="margin-top:8px"></div>
-          </details>
-
-          <details style="margin-top:8px">
-            <summary>Speakers</summary>
-            <div class="row toolbar" style="margin-top:8px">
-              <input id="sp_name" placeholder="name *" />
-              <input id="sp_aff" placeholder="affiliation" />
-              <input id="sp_bio" placeholder="bio" />
-              <input id="sp_avatar" placeholder="avatar_url https://..." />
-              <button class="btn" onclick="addSpeaker()">Aggiungi</button>
-              <button class="btn warn" onclick="clearList('speakers')">Svuota</button>
-            </div>
-            <div id="speakers" class="list" style="margin-top:8px"></div>
-          </details>
-
-          <details style="margin-top:8px">
-            <summary>Tickets</summary>
-            <div class="grid two" style="margin-top:8px">
-              <label>free <select id="tk_free"><option value="">(omit)</option><option>true</option><option>false</option></select></label>
-              <label>capacity <input id="tk_capacity" type="number" min="0" /></label>
-            </div>
-            <div class="grid two">
-              <label>sold <input id="tk_sold" type="number" min="0" /></label>
-              <label>price_eur <input id="tk_price" type="number" min="0" step="any" /></label>
-            </div>
-            <div class="row" style="margin-top:8px">
-              <button class="btn" onclick="setTickets()">Imposta tickets</button>
-              <button class="btn warn" onclick="removeTickets()">Rimuovi tickets</button>
-            </div>
-          </details>
-        </details>
-
-        <details id="type_collab">
-          <summary>Payload specifico: collaboration</summary>
-          <label>goal <input id="cl_goal" /></label>
-          <label>work_packages (comma) <input id="cl_wps" placeholder="WP1, WP2" /></label>
-          <details style="margin-top:8px">
-            <summary>Timeline</summary>
-            <div class="grid two" style="margin-top:8px">
-              <label>start <input id="cl_tl_start" placeholder="YYYY-MM-DD" /></label>
-              <label>end <input id="cl_tl_end" placeholder="YYYY-MM-DD" /></label>
-            </div>
-            <div class="row toolbar" style="margin-top:8px">
-              <input id="ms_date" placeholder="YYYY-MM-DD" />
-              <input id="ms_title" placeholder="titolo *" />
-              <input id="ms_desc" placeholder="desc" />
-              <button class="btn" onclick="addMilestone()">Aggiungi milestone</button>
-              <button class="btn warn" onclick="clearList('milestones')">Svuota milestones</button>
-            </div>
-            <div id="milestones" class="list" style="margin-top:8px"></div>
-          </details>
-          <details style="margin-top:8px">
-            <summary>Requirements</summary>
-            <div class="grid two" style="margin-top:8px">
-              <label>tech (comma) <input id="rq_tech" placeholder="Python, R, GEE" /></label>
-              <label>non_tech (comma) <input id="rq_nontech" placeholder="Comunicazione, Project mgmt" /></label>
-            </div>
-          </details>
-          <details style="margin-top:8px">
-            <summary>Funding</summary>
-            <div class="grid two" style="margin-top:8px">
-              <label>status
-                <select id="fd_status">
-                  <option value="">(omit)</option>
-                  <option>secured</option><option>in_progress</option><option>needed</option>
-                </select>
-              </label>
-              <label>sources (comma) <input id="fd_sources" placeholder="Horizon, PRIN" /></label>
-            </div>
-          </details>
-        </details>
-
-        <details id="type_announce">
-          <summary>Payload specifico: announcement</summary>
-          <label>changelog (righe → voci)
-            <textarea id="an_changelog" placeholder="Una voce per riga"></textarea>
-          </label>
-          <label>breaking_changes (righe → voci)
-            <textarea id="an_breaking" placeholder="Una voce per riga"></textarea>
-          </label>
-          <div class="grid two">
-            <label>docs_url <input id="an_docs" placeholder="https://..." /></label>
-            <label>rollout.type
-              <select id="an_roll_type"><option value="">(omit)</option><option>global</option><option>gradual</option><option>canary</option></select>
-            </label>
-          </div>
-          <label>rollout.percent <input id="an_roll_pct" type="number" min="0" max="100" /></label>
-        </details>
-
-        <details id="type_news">
-          <summary>Payload specifico: news</summary>
-          <label>body_md <textarea id="nw_body" placeholder="Corpo in Markdown"></textarea></label>
-          <details style="margin-top:8px">
-            <summary>Quotes</summary>
-            <div class="row toolbar" style="margin-top:8px">
-              <input id="q_author" placeholder="author *" />
-              <input id="q_text" placeholder="text *" />
-              <button class="btn" onclick="addQuote()">Aggiungi</button>
-              <button class="btn warn" onclick="clearList('quotes')">Svuota</button>
-            </div>
-            <div id="quotes" class="list" style="margin-top:8px"></div>
-          </details>
-          <p class="help">Media e SEO per <span class="badge">news</span> si gestiscono sopra nelle sezioni “Media” e “SEO”.</p>
-        </details>
-      </details>
+  <header>
+    <h1>Cards → Editor → JSON</h1>
+    <div style="display:flex; gap:8px; align-items:center">
+      <span style="font-size:12px; color:var(--sub)">Schema: Suggestion</span>
     </div>
-  </section>
-
-  <!-- RIGHT: OUTPUT + TOOLBAR -->
-  <section class="panel">
-    <div class="head">Output JSON e strumenti</div>
-    <div class="body">
-      <div class="row" style="margin-bottom:8px">
-        <button class="btn acc" onclick="build()">Costruisci JSON</button>
-        <button class="btn ok" onclick="copyJSON()">Copia</button>
-        <button class="btn" onclick="downloadJSON()">Scarica</button>
-        <button class="btn warn" onclick="loadSample()">Carica esempio</button>
-        <button class="btn err" onclick="resetAll()">Reset</button>
+  </header>
+  <div class="layout">
+    <aside class="panel palette" id="palette">
+      <div class="group">
+        <h3>Root</h3>
+        <div class="tile" draggable="true" data-card="root.type"><span class="badge">required</span> type</div>
+        <div class="tile" draggable="true" data-card="root.title"><span class="badge">required</span> title</div>
+        <div class="tile" draggable="true" data-card="root.summary">summary</div>
+        <div class="tile" draggable="true" data-card="root.status">status</div>
+        <div class="tile" draggable="true" data-card="root.priority">priority</div>
+        <div class="tile" draggable="true" data-card="root.published_at">published_at</div>
+        <div class="tile" draggable="true" data-card="root.partner_ids">partner_ids</div>
       </div>
-      <pre id="out" class="mono">{}</pre>
-      <details style="margin-top:10px">
-        <summary>Linee guida rapide</summary>
-        <ul class="help">
-          <li><b>published_at</b> → formato <code>YYYY-MM-DDTHH:mm</code> senza timezone.</li>
-          <li><b>isoDateTime</b> (event.start_at/end_at, registration.deadline) → <code>YYYY-MM-DDTHH:mm:ss</code>.</li>
-          <li><b>tags</b> e liste “comma” accettano valori unici; spazi superflui rimossi.</li>
-          <li><b>media</b> supporta <i>image</i>, <i>video</i>, <i>gallery</i>. Usa la sezione “Aggiungi elemento a una gallery” per riempire <code>items</code>.</li>
-          <li><b>status</b> default <code>draft</code>. <b>priority</b> default <code>0</code>.</li>
-          <li>Il validatore incluso copre pattern e vincoli principali; per validazione formale usa JSON Schema 2020-12.</li>
-        </ul>
-      </details>
-    </div>
-  </section>
-</div>
+      <div class="group">
+        <h3>Payload comune</h3>
+        <div class="tile" draggable="true" data-card="payload.tags">tags</div>
+        <div class="tile" draggable="true" data-card="payload.seo">seo</div>
+        <div class="tile" draggable="true" data-card="payload.attachments">attachments</div>
+        <div class="tile" draggable="true" data-card="payload.links">links</div>
+        <div class="tile" draggable="true" data-card="payload.contacts">contacts</div>
+        <div class="tile" draggable="true" data-card="payload.media-simple">media (image/video)</div>
+        <div class="tile" draggable="true" data-card="payload.notes_md">notes_md</div>
+      </div>
+      <div class="group">
+        <h3>Event payload</h3>
+        <div class="tile" draggable="true" data-card="event.when">start/end/timezone</div>
+        <div class="tile" draggable="true" data-card="event.venue">venue</div>
+        <div class="tile" draggable="true" data-card="event.flags">online / livestream / registration</div>
+        <div class="tile" draggable="true" data-card="event.agenda">agenda</div>
+        <div class="tile" draggable="true" data-card="event.speakers">speakers</div>
+        <div class="tile" draggable="true" data-card="event.tickets">tickets</div>
+      </div>
+      <div class="group">
+        <h3>Export</h3>
+        <div class="tile" draggable="false" id="quick-min"><span class="badge">preset</span> minimo obbligatorio</div>
+      </div>
+    </aside>
+
+    <main class="panel canvas">
+      <div class="hint">Trascina le card dal pannello sinistro qui sotto. I campi duplicati singlet vengono riutilizzati.</div>
+      <section class="dropzone" id="dropzone"></section>
+    </main>
+
+    <section class="panel json-panel">
+      <div class="status">
+        <span>Output JSON</span>
+        <span id="status-pill" class="pill">idle</span>
+      </div>
+      <div class="kbar">
+        <button class="btn primary" id="build">Build JSON</button>
+        <button class="btn" id="copy">Copia</button>
+        <button class="btn" id="download">Download</button>
+        <button class="btn warn" id="clear">Reset editor</button>
+      </div>
+      <pre class="out" id="out">{}</pre>
+    </section>
+  </div>
 
 <script>
-  // --- stato
-  const state = {
-    partner_ids: [],
-    payload: {
-      // common
-      schema_version: 1,
-      tags: [],
-      seo: {},
-      attachments: [],
-      media: [],
-      links: [],
-      contacts: [],
-      notes_md: "",
-      // specific (by type)
-      // event:
-      agenda: [],
-      speakers: [],
-      // collaboration:
-      timeline: {},
-      milestones: [],
-      // news:
-      quotes: []
+  const el = sel => document.querySelector(sel);
+  const create = (tag, cls) => { const n=document.createElement(tag); if(cls) n.className=cls; return n; };
+  const setPill = (t,c) => { const p=el('#status-pill'); p.textContent=t; };
+  const ensureSeconds = (v) => {
+    if(!v) return null; // input type datetime-local may yield "YYYY-MM-DDTHH:mm" or with seconds
+    // Normalize to YYYY-MM-DDTHH:mm:ss
+    if(/\d{2}:\d{2}:\d{2}$/.test(v)) return v;
+    if(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v)) return v+':00';
+    return v; // leave as-is if unknown
+  };
+  const stripSeconds = (v) => {
+    if(!v) return null;
+    const m = v.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/);
+    return m? m[1] : v;
+  };
+  function deepSet(obj, path, value){
+    const parts = Array.isArray(path) ? path : path.split('.');
+    let cur = obj;
+    for(let i=0;i<parts.length-1;i++){
+      const k=parts[i];
+      if(!(k in cur) || typeof cur[k] !== 'object' || cur[k]===null) cur[k]={};
+      cur = cur[k];
+    }
+    cur[parts[parts.length-1]] = value;
+  }
+
+  const DROPZONE = el('#dropzone');
+
+  const SINGLETON = new Set([
+    'root.type','root.title','root.summary','root.status','root.priority','root.published_at','root.partner_ids',
+    'payload.tags','payload.seo','payload.attachments','payload.links','payload.contacts','payload.media-simple','payload.notes_md',
+    'event.when','event.venue','event.flags','event.agenda','event.speakers','event.tickets'
+  ]);
+
+  const CARD_DEFS = {
+    'root.type': {
+      title:'type', singleton:true, build(container){
+        const w=create('div','row');
+        const c=create('div','col-12'); w.appendChild(c);
+        const label=create('label'); label.textContent='type'; c.appendChild(label);
+        const sel=create('select'); sel.name='type'; ['event','collaboration','announcement','news'].forEach(v=>{ const o=create('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+        c.appendChild(sel);
+        return w;
+      }, serialize(container, acc){ acc.type = container.querySelector('select[name="type"]').value; }
     },
-    venue: null,
-    livestream: null,
-    registration: null,
-    tickets: null
+    'root.title': {
+      title:'title', singleton:true, build(){
+        const w=create('div','row');
+        const c=create('div','col-12'); w.appendChild(c);
+        const l=create('label'); l.textContent='title'; c.appendChild(l);
+        const i=create('input'); i.type='text'; i.name='title'; i.maxLength=140; c.appendChild(i);
+        return w;
+      }, serialize(container, acc){ acc.title = container.querySelector('input[name="title"]').value.trim(); }
+    },
+    'root.summary': {
+      title:'summary', singleton:true, build(){
+        const w=create('div','row');
+        const c=create('div','col-12'); w.appendChild(c);
+        const l=create('label'); l.textContent='summary (max 300)'; c.appendChild(l);
+        const t=create('textarea'); t.maxLength=300; t.name='summary'; c.appendChild(t);
+        return w;
+      }, serialize(container, acc){ const v=container.querySelector('textarea[name="summary"]').value.trim(); if(v) acc.summary=v; }
+    },
+    'root.status': { title:'status', singleton:true, build(){
+      const w=create('div','row'); const c=create('div','col-6'); const d=create('div','col-6'); w.append(c,d);
+      let l=create('label'); l.textContent='status'; c.appendChild(l);
+      const s=create('select'); s.name='status'; ['draft','approved','published','archived'].forEach(v=>{ const o=create('option'); o.value=v; o.textContent=v; s.appendChild(o); }); c.appendChild(s);
+      l=create('label'); l.textContent='priority (-10..10)'; d.appendChild(l);
+      const n=create('input'); n.type='number'; n.name='priority'; n.min=-10; n.max=10; n.value=0; d.appendChild(n);
+      return w;
+    }, serialize(container, acc){
+      acc.status = container.querySelector('select[name="status"]').value;
+      acc.priority = Number(container.querySelector('input[name="priority"]').value||0);
+    }},
+    'root.published_at': { title:'published_at', singleton:true, build(){
+      const w=create('div','row'); const c=create('div','col-12'); w.appendChild(c);
+      const l=create('label'); l.textContent='published_at (YYYY-MM-DDTHH:mm)'; c.appendChild(l);
+      const i=create('input'); i.type='datetime-local'; i.name='published_at'; c.appendChild(i);
+      return w;
+    }, serialize(container, acc){ const v=container.querySelector('input[name="published_at"]').value; if(v) acc.published_at = stripSeconds(v); }},
+    'root.partner_ids': { title:'partner_ids', singleton:true, build(){
+      const w=create('div','list');
+      const ctrl=create('div');
+      const add=create('button'); add.textContent='+ id'; add.className='btn';
+      ctrl.appendChild(add); w.appendChild(ctrl);
+      const list=create('div'); w.appendChild(list);
+      add.addEventListener('click',()=>{
+        const itm=create('div','item');
+        const r=create('div','item-row'); itm.appendChild(r);
+        const c1=create('div','col-9'); const c2=create('div','col-3'); r.append(c1,c2);
+        let l=create('label'); l.textContent='id ≥ 1'; c1.appendChild(l);
+        const n=create('input'); n.type='number'; n.min=1; n.name='pid'; c1.appendChild(n);
+        const rm=create('button'); rm.textContent='rimuovi'; rm.className='btn danger'; rm.onclick=()=>itm.remove(); c2.appendChild(rm);
+        list.appendChild(itm);
+      });
+      return w;
+    }, serialize(container, acc){ const ids=[...container.querySelectorAll('input[name="pid"]')].map(i=>Number(i.value)).filter(v=>Number.isFinite(v)&&v>=1); if(ids.length) acc.partner_ids=[...new Set(ids)]; }},
+
+    'payload.tags': { title:'payload.tags', singleton:true, build(){
+      const w=create('div','row'); const c=create('div','col-12'); w.appendChild(c);
+      const l=create('label'); l.textContent='tags (string)'; c.appendChild(l);
+      const input=create('input'); input.placeholder='invio per aggiungere';
+      const chips=create('div'); chips.className='list'; chips.style.flexDirection='row'; chips.style.flexWrap='wrap'; chips.style.gap='6px';
+      c.append(input,chips);
+      input.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); const v=input.value.trim(); if(!v) return; const chip=create('span'); chip.textContent=v; chip.className='btn'; chip.style.borderRadius='999px'; chip.dataset.val=v; chip.onclick=()=>chip.remove(); chips.appendChild(chip); input.value=''; }});
+      return w;
+    }, serialize(container, acc){ const vals=[...container.querySelectorAll('[data-val]')].map(x=>x.dataset.val); if(vals.length){ if(!acc.payload) acc.payload={}; acc.payload.tags=[...new Set(vals)]; }}},
+
+    'payload.seo': { title:'payload.seo', singleton:true, build(){
+      const w=create('div','row');
+      const a=create('div','col-6'); const b=create('div','col-6'); const c=create('div','col-12'); w.append(a,b,c);
+      let l=create('label'); l.textContent='slug (3..80)'; a.appendChild(l);
+      const slug=create('input'); slug.name='slug'; slug.minLength=3; slug.maxLength=80; a.appendChild(slug);
+      l=create('label'); l.textContent='image URL'; b.appendChild(l);
+      const img=create('input'); img.type='url'; img.name='image'; b.appendChild(img);
+      l=create('label'); l.textContent='keywords (invio per aggiungere)'; c.appendChild(l);
+      const kw=create('input'); kw.placeholder='keyword'; c.appendChild(kw);
+      const list=create('div'); list.className='list'; list.style.flexDirection='row'; list.style.flexWrap='wrap'; list.style.gap='6px'; c.appendChild(list);
+      kw.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); const v=kw.value.trim(); if(!v) return; const chip=create('span'); chip.className='btn'; chip.dataset.val=v; chip.textContent=v; chip.onclick=()=>chip.remove(); list.appendChild(chip); kw.value=''; }});
+      return w;
+    }, serialize(container, acc){ const slug=container.querySelector('input[name="slug"]').value.trim(); const image=container.querySelector('input[name="image"]').value.trim(); const kws=[...container.querySelectorAll('[data-val]')].map(x=>x.dataset.val);
+      if(!acc.payload) acc.payload={}; const seo={}; if(slug) seo.slug=slug; if(kws.length) seo.keywords=[...new Set(kws)]; if(image) seo.image=image; if(Object.keys(seo).length) acc.payload.seo=seo; }},
+
+    'payload.attachments': { title:'payload.attachments', singleton:true, build(){ return buildArrayOfObject('attachments', [
+      {label:'label', type:'text', name:'label', required:true},
+      {label:'url', type:'url', name:'url', required:true},
+      {label:'type', type:'select', name:'type', options:['pdf','image','doc','sheet','other']}
+    ]); }, serialize(container, acc){ const arr = serializeArray(container); if(arr.length){ if(!acc.payload) acc.payload={}; acc.payload.attachments=arr; }}},
+
+    'payload.links': { title:'payload.links', singleton:true, build(){ return buildArrayOfObject('links', [
+      {label:'label', type:'text', name:'label', required:true},
+      {label:'url', type:'url', name:'url', required:true},
+      {label:'rel', type:'text', name:'rel'},
+      {label:'external', type:'checkbox', name:'external'}
+    ]); }, serialize(container, acc){ const arr = serializeArray(container); if(arr.length){ if(!acc.payload) acc.payload={}; acc.payload.links=arr; }}},
+
+    'payload.contacts': { title:'payload.contacts', singleton:true, build(){ return buildArrayOfObject('contacts', [
+      {label:'name', type:'text', name:'name', required:true},
+      {label:'role', type:'text', name:'role'},
+      {label:'email', type:'text', name:'email'},
+      {label:'url', type:'url', name:'url'},
+      {label:'avatar_url', type:'url', name:'avatar_url'}
+    ]); }, serialize(container, acc){ const arr = serializeArray(container); if(arr.length){ if(!acc.payload) acc.payload={}; acc.payload.contacts=arr; }}},
+
+    'payload.media-simple': { title:'payload.media (image/video)', singleton:true, build(){ return buildArrayOfObject('media', [
+      {label:'type', type:'select', name:'type', required:true, options:['image','video']},
+      {label:'url', type:'url', name:'url', required:true},
+      {label:'caption', type:'text', name:'caption'},
+      {label:'alt/provider', type:'text', name:'alt_or_provider', hint:'alt (image) / provider (video)'}
+    ], {transform:(obj)=>{ if(obj.type==='image'){ const {type,url,caption,alt_or_provider}=obj; const out={type,url}; if(caption) out.caption=caption; if(alt_or_provider) out.alt=alt_or_provider; return out; } else { const {type,url,caption,alt_or_provider}=obj; const out={type,url}; if(caption) out.caption=caption; if(alt_or_provider) out.provider=alt_or_provider; return out; } }}); }, serialize(container, acc){ const arr = serializeArray(container); if(arr.length){ if(!acc.payload) acc.payload={}; acc.payload.media=arr; }}},
+
+    'payload.notes_md': { title:'payload.notes_md', singleton:true, build(){
+      const w=create('div','row'); const c=create('div','col-12'); w.appendChild(c);
+      const l=create('label'); l.textContent='notes_md'; c.appendChild(l);
+      const t=create('textarea'); t.name='notes_md'; c.appendChild(t);
+      return w;
+    }, serialize(container, acc){ const v=container.querySelector('textarea[name="notes_md"]').value.trim(); if(v){ if(!acc.payload) acc.payload={}; acc.payload.notes_md=v; } }},
+
+    // Event payload
+    'event.when': { title:'event: start/end/timezone', singleton:true, build(){
+      const w=create('div','row');
+      const a=create('div','col-4'); const b=create('div','col-4'); const c=create('div','col-4'); w.append(a,b,c);
+      let l=create('label'); l.textContent='start_at (local)'; a.appendChild(l); const s=create('input'); s.type='datetime-local'; s.step=1; s.name='start_at'; a.appendChild(s);
+      l=create('label'); l.textContent='end_at (local)'; b.appendChild(l); const e=create('input'); e.type='datetime-local'; e.step=1; e.name='end_at'; b.appendChild(e);
+      l=create('label'); l.textContent='timezone (IANA)'; c.appendChild(l); const tz=create('input'); tz.type='text'; tz.name='timezone'; tz.placeholder='Europe/Rome'; c.appendChild(tz);
+      return w;
+    }, serialize(container, acc){ const start=ensureSeconds(container.querySelector('input[name="start_at"]').value); const end=ensureSeconds(container.querySelector('input[name="end_at"]').value); const tz=container.querySelector('input[name="timezone"]').value.trim(); if(!acc.payload) acc.payload={}; if(start) acc.payload.start_at=start; if(end) acc.payload.end_at=end; if(tz) acc.payload.timezone=tz; }},
+
+    'event.venue': { title:'event: venue', singleton:true, build(){
+      const w=create('div','row');
+      const a=create('div','col-6'); const b=create('div','col-6'); const c=create('div','col-12'); const d=create('div','col-3'); const e=create('div','col-3'); const f=create('div','col-3'); const g=create('div','col-3');
+      w.append(a,b,c,d,e,f,g);
+      let l=create('label'); l.textContent='name'; a.appendChild(l); const name=create('input'); name.name='name'; a.appendChild(name);
+      l=create('label'); l.textContent='address'; b.appendChild(l); const addr=create('input'); addr.name='address'; b.appendChild(addr);
+      l=create('label'); l.textContent='map_url'; c.appendChild(l); const map=create('input'); map.type='url'; map.name='map_url'; c.appendChild(map);
+      l=create('label'); l.textContent='lat (-90..90)'; d.appendChild(l); const lat=create('input'); lat.type='number'; lat.step='any'; lat.min='-90'; lat.max='90'; lat.name='lat'; d.appendChild(lat);
+      l=create('label'); l.textContent='lon (-180..180)'; e.appendChild(l); const lon=create('input'); lon.type='number'; lon.step='any'; lon.min='-180'; lon.max='180'; lon.name='lon'; e.appendChild(lon);
+      l=create('label'); l.textContent='room'; f.appendChild(l); const room=create('input'); room.name='room'; f.appendChild(room);
+      const note=create('div','sub col-12'); note.textContent='name richiesto nello schema'; w.appendChild(note);
+      return w;
+    }, serialize(container, acc){ const out={}; ['name','address','map_url','room'].forEach(k=>{ const v=container.querySelector(`[name="${k}"]`).value.trim(); if(v) out[k]=v; });
+      const lat=container.querySelector('[name="lat"]').value; const lon=container.querySelector('[name="lon"]').value; if(lat!=='') out.lat=Number(lat); if(lon!=='') out.lon=Number(lon);
+      if(Object.keys(out).length){ if(!acc.payload) acc.payload={}; acc.payload.venue=out; }
+    }},
+
+    'event.flags': { title:'event: online / livestream / registration', singleton:true, build(){
+      const w=create('div','row');
+      const a=create('div','col-3'); const b=create('div','col-9'); w.append(a,b);
+      let l=create('label'); l.textContent='online'; a.appendChild(l); const on=create('select'); on.name='online'; ['','true','false'].forEach(v=>{ const o=create('option'); o.value=v; o.textContent=v; on.appendChild(o); }); a.appendChild(on);
+      const box=create('div','col-12'); box.style.gridColumn='span 12'; box.style.marginTop='4px'; w.appendChild(box);
+      // livestream
+      const ls=create('div','item'); const r1=create('div','item-row'); ls.appendChild(r1);
+      let c1=create('div','col-3'); let c2=create('div','col-4'); let c3=create('div','col-5'); r1.append(c1,c2,c3);
+      l=create('label'); l.textContent='livestream.enabled'; c1.appendChild(l); const lsen=create('select'); lsen.name='ls_enabled'; ['','true','false'].forEach(v=>{ const o=create('option'); o.value=v; o.textContent=v; lsen.appendChild(o); }); c1.appendChild(lsen);
+      l=create('label'); l.textContent='platform'; c2.appendChild(l); const lsp=create('input'); lsp.name='ls_platform'; c2.appendChild(lsp);
+      l=create('label'); l.textContent='url'; c3.appendChild(l); const lsu=create('input'); lsu.type='url'; lsu.name='ls_url'; c3.appendChild(lsu);
+      box.appendChild(ls);
+      // registration
+      const rg=create('div','item'); const r2=create('div','item-row'); rg.appendChild(r2);
+      c1=create('div','col-3'); c2=create('div','col-5'); c3=create('div','col-4'); r2.append(c1,c2,c3);
+      l=create('label'); l.textContent='registration.required'; c1.appendChild(l); const rr=create('select'); rr.name='reg_req'; ['','true','false'].forEach(v=>{ const o=create('option'); o.value=v; o.textContent=v; rr.appendChild(o); }); c1.appendChild(rr);
+      l=create('label'); l.textContent='url'; c2.appendChild(l); const ru=create('input'); ru.type='url'; ru.name='reg_url'; c2.appendChild(ru);
+      l=create('label'); l.textContent='deadline (local)'; c3.appendChild(l); const rd=create('input'); rd.type='datetime-local'; rd.step=1; rd.name='reg_deadline'; c3.appendChild(rd);
+      return w;
+    }, serialize(container, acc){ if(!acc.payload) acc.payload={};
+      const online=container.querySelector('select[name="online"]').value; if(online) acc.payload.online = online==='true';
+      const lsen=container.querySelector('select[name="ls_enabled"]').value; const platform=container.querySelector('input[name="ls_platform"]').value.trim(); const url=container.querySelector('input[name="ls_url"]').value.trim();
+      const ls={}; if(lsen) ls.enabled = lsen==='true'; if(platform) ls.platform=platform; if(url) ls.url=url; if(Object.keys(ls).length) acc.payload.livestream = ls;
+      const reg={}; const req=container.querySelector('select[name="reg_req"]').value; const rurl=container.querySelector('input[name="reg_url"]').value.trim(); const rdl=container.querySelector('input[name="reg_deadline"]').value; if(req) reg.required=req==='true'; if(rurl) reg.url=rurl; if(rdl) reg.deadline=ensureSeconds(rdl); if(Object.keys(reg).length) acc.payload.registration=reg;
+    }},
+
+    'event.agenda': { title:'event: agenda', singleton:true, build(){
+      return buildArrayOfObject('agenda', [
+        {label:'time (HH:MM)', type:'text', name:'time', placeholder:'09:30'},
+        {label:'title', type:'text', name:'title'},
+        {label:'speakers (invio per aggiungere)', type:'chips', name:'speakers'}
+      ], {transform:(obj)=>{ const out={}; if(obj.time) out.time=obj.time; if(obj.title) out.title=obj.title; if(obj.speakers && obj.speakers.length) out.speakers=obj.speakers; return out; }});
+    }, serialize(container, acc){ const arr=serializeArray(container); if(arr.length){ if(!acc.payload) acc.payload={}; acc.payload.agenda=arr; }}},
+
+    'event.speakers': { title:'event: speakers', singleton:true, build(){
+      return buildArrayOfObject('speakers', [
+        {label:'name', type:'text', name:'name'},
+        {label:'affiliation', type:'text', name:'affiliation'},
+        {label:'bio', type:'textarea', name:'bio'},
+        {label:'avatar_url', type:'url', name:'avatar_url'}
+      ]);
+    }, serialize(container, acc){ const arr=serializeArray(container); if(arr.length){ if(!acc.payload) acc.payload={}; acc.payload.speakers=arr; }}},
+
+    'event.tickets': { title:'event: tickets', singleton:true, build(){
+      const w=create('div','row');
+      const a=create('div','col-3'); const b=create('div','col-3'); const c=create('div','col-3'); const d=create('div','col-3'); w.append(a,b,c,d);
+      let l=create('label'); l.textContent='free'; a.appendChild(l); const fr=create('select'); fr.name='free'; ['','true','false'].forEach(v=>{ const o=create('option'); o.value=v; o.textContent=v; fr.appendChild(o); }); a.appendChild(fr);
+      l=create('label'); l.textContent='capacity'; b.appendChild(l); const cap=create('input'); cap.type='number'; cap.min=0; cap.name='capacity'; b.appendChild(cap);
+      l=create('label'); l.textContent='sold'; c.appendChild(l); const sold=create('input'); sold.type='number'; sold.min=0; sold.name='sold'; c.appendChild(sold);
+      l=create('label'); l.textContent='price_eur'; d.appendChild(l); const pr=create('input'); pr.type='number'; pr.min=0; pr.step='any'; pr.name='price_eur'; d.appendChild(pr);
+      return w;
+    }, serialize(container, acc){ const out={}; const fr=container.querySelector('select[name="free"]').value; if(fr) out.free = fr==='true'; const cap=container.querySelector('input[name="capacity"]').value; if(cap!=='') out.capacity=Number(cap); const s=container.querySelector('input[name="sold"]').value; if(s!=='') out.sold=Number(s); const p=container.querySelector('input[name="price_eur"]').value; if(p!=='') out.price_eur=Number(p); if(Object.keys(out).length){ if(!acc.payload) acc.payload={}; acc.payload.tickets=out; }}}
   };
 
-  // --- util
-  const $ = (id)=>document.getElementById(id);
-  const cleanComma = (s)=> (s||"").split(",").map(x=>x.trim()).filter(Boolean);
-  const isURL = (u)=> /^https?:\/\/.{3,}/i.test(u||"");
-  const isEmail = (e)=> /.+@.+\..+/.test(e||"");
-  const isDTmm = (s)=> /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s||"");
-  const isDTss = (s)=> /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s||"");
-  const isDate = (s)=> /^\d{4}-\d{2}-\d{2}$/.test(s||"");
-  const isTZ = (s)=> (s||"").length>=3; // IANA minimo
-  const clampInt = (v,min,max,def)=> {
-    if(v === "" || v === null || v === undefined) return def;
-    v = parseInt(v,10);
-    if(Number.isNaN(v)) return def;
-    return Math.min(max,Math.max(min,v));
-  };
-  function renderList(id, arr, mapFn){
-    const box=$(id); box.innerHTML="";
-    arr.forEach((item,i)=>{
-      const el=document.createElement("div");
-      el.className="card";
-      el.innerHTML = mapFn(item,i);
-      box.appendChild(el);
+  // Helpers for array-of-object cards
+  function buildArrayOfObject(title, fields, opts={}){
+    const wrap=create('div','list');
+    const ctrl=create('div');
+    const add=create('button'); add.textContent='+ add'; add.className='btn'; ctrl.appendChild(add);
+    wrap.appendChild(ctrl);
+    const list=create('div'); wrap.appendChild(list);
+
+    add.addEventListener('click',()=>{
+      const item=create('div','item'); const row=create('div','item-row'); item.appendChild(row);
+      fields.forEach(f=>{
+        const col=create('div', f.type==='textarea' ? 'col-12' : 'col-4');
+        const lab=create('label'); lab.textContent=f.label; col.appendChild(lab);
+        let inp;
+        switch(f.type){
+          case 'text': case 'url': case 'number':
+            inp=create('input'); inp.type=f.type==='number'?'number':(f.type==='url'?'url':'text'); break;
+          case 'select':
+            inp=create('select'); (f.options||[]).forEach(v=>{ const o=create('option'); o.value=v; o.textContent=v; inp.appendChild(o); }); break;
+          case 'checkbox':
+            inp=create('input'); inp.type='checkbox'; break;
+          case 'textarea':
+            inp=create('textarea'); break;
+          case 'chips':
+            inp=create('div');
+            const input=create('input'); input.placeholder='valore';
+            const chips=create('div'); chips.className='list'; chips.style.flexDirection='row'; chips.style.flexWrap='wrap'; chips.style.gap='6px';
+            input.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); const v=input.value.trim(); if(!v) return; const chip=create('span'); chip.className='btn'; chip.dataset.val=v; chip.textContent=v; chip.onclick=()=>chip.remove(); chips.appendChild(chip); input.value=''; }});
+            inp.append(input,chips);
+            break;
+        }
+        inp.name=f.name;
+        if(f.placeholder) inp.placeholder=f.placeholder;
+        col.appendChild(inp);
+        row.appendChild(col);
+      });
+      const actions=create('div','item-row');
+      const rmCol=create('div','col-12'); const rmBtn=create('button'); rmBtn.textContent='rimuovi'; rmBtn.className='btn danger'; rmBtn.onclick=()=>item.remove(); rmCol.appendChild(rmBtn); actions.appendChild(rmCol); item.appendChild(actions);
+      list.appendChild(item);
     });
+    return wrap;
   }
-  function markErr(linesIdx){ // highlight line numbers in JSON preview
-    const pre = $("out");
-    const lineArr = pre.textContent.split("\n");
-    linesIdx.forEach(idx=>{
-      if(idx>=0 && idx<lineArr.length){
-        lineArr[idx] = "%ERRLINE%"+lineArr[idx];
-      }
+  function serializeArray(container){
+    const out=[];
+    [...container.querySelectorAll('.list > div .item')].forEach(item=>{
+      const obj={};
+      const inputs=[...item.querySelectorAll('input, select, textarea')];
+      const chipsScopes=[...item.querySelectorAll('.list')];
+      let skipEmpty=true;
+      inputs.forEach(inp=>{
+        const name=inp.name; if(!name) return;
+        if(inp.type==='checkbox'){ obj[name]=inp.checked; if(inp.checked) skipEmpty=false; return; }
+        if(inp.type==='number'){ if(inp.value!==''){ obj[name]= Number(inp.value); skipEmpty=false; } return; }
+        if(inp.type==='datetime-local'){ const v=inp.value; if(v){ obj[name]=ensureSeconds(v); skipEmpty=false; } return; }
+        if(inp.tagName==='TEXTAREA' || inp.tagName==='SELECT' || inp.type==='text' || inp.type==='url'){
+          const v=inp.value.trim(); if(v){ obj[name]=v; skipEmpty=false; }
+        }
+      });
+      // chips fields
+      chipsScopes.forEach(scope=>{
+        const key = scope.previousSibling && scope.previousSibling.previousSibling && scope.previousSibling.previousSibling.name || null;
+        const chips=[...scope.querySelectorAll('[data-val]')].map(x=>x.dataset.val);
+        if(chips.length){ obj['speakers'] = chips; skipEmpty=false; }
+      });
+      if(Object.keys(obj).length && !skipEmpty){ out.push(objTransform(obj, container)); }
     });
-    pre.textContent = lineArr.join("\n");
-    pre.innerHTML = pre.innerHTML
-      .replace(/%ERRLINE%(.*)/g,'<span class="errline">$1</span>')
-      .replace(/"(.*?)"(?=\s*:)/g,'<span class="k">"$1"</span>')
-      .replace(/: (".*?"|\d+|true|false|null)(,?)/g,': <span class="v">$1</span>$2');
+    return out;
   }
-
-  // --- partner ids
-  function addPartner(){
-    const v = parseInt($("pid_val").value,10);
-    if(!Number.isInteger(v) || v<1) return;
-    if(!state.partner_ids.includes(v)) state.partner_ids.push(v);
-    $("pid_val").value="";
-    renderList("partner_list", state.partner_ids, (x,i)=>`#${i} → ${x} <div class="tiny">intero</div>`);
-  }
-  function clearPartners(){
-    state.partner_ids = [];
-    renderList("partner_list", [], ()=>"");
-  }
-
-  // --- attachments
-  function addAttachment(){
-    const label=$("att_label").value.trim();
-    const url=$("att_url").value.trim();
-    const type=$("att_type").value.trim();
-    if(!label || !isURL(url)) return;
-    const obj={label,url};
-    if(type) obj.type=type;
-    state.payload.attachments.push(obj);
-    $("att_label").value="";$("att_url").value="";$("att_type").value="";
-    renderList("attachments", state.payload.attachments, (a,i)=>`[${i}] ${a.label} → ${a.url} ${a.type?("("+a.type+")"):""}`);
-  }
-  function clearList(id){
-    if(id==="attachments") state.payload.attachments=[];
-    if(id==="media") state.payload.media=[];
-    if(id==="links") state.payload.links=[];
-    if(id==="contacts") state.payload.contacts=[];
-    if(id==="agenda") state.payload.agenda=[];
-    if(id==="speakers") state.payload.speakers=[];
-    if(id==="milestones") state.milestones=[];
-    if(id==="quotes") state.quotes=[];
-    renderList(id, [], ()=>"");
-  }
-
-  // --- media
-  function addMedia(){
-    const kind=$("media_kind").value;
-    if(kind==="gallery"){
-      state.payload.media.push({type:"gallery",items:[]});
-    }else if(kind==="image"){
-      const url=$("media_url").value.trim();
-      if(!isURL(url)) return;
-      const caption=$("media_caption").value.trim();
-      const alt=($("media_alt").value||"").trim();
-      if(!alt) return;
-      const img={type:"image",url,alt};
-      if(caption) img.caption=caption;
-      state.payload.media.push(img);
-    }else if(kind==="video"){
-      const url=$("media_url").value.trim();
-      const provider=($("media_provider").value||"").trim();
-      if(!isURL(url)) return;
-      const caption=$("media_caption").value.trim();
-      const vid={type:"video",url};
-      if(caption) vid.caption=caption;
-      if(provider) vid.provider=provider;
-      state.payload.media.push(vid);
+  function objTransform(obj, container){
+    const defKey = container.closest('.card')?.dataset.def;
+    const def = CARD_DEFS[defKey];
+    if(def && def.title && def.title.includes('media') && defKey==='payload.media-simple'){
+      const tr = (o)=>{ if(o.type==='image'){ const out={type:'image', url:o.url}; if(o.caption) out.caption=o.caption; if(o.alt_or_provider) out.alt=o.alt_or_provider; return out; } else { const out={type:'video', url:o.url}; if(o.caption) out.caption=o.caption; if(o.alt_or_provider) out.provider=o.alt_or_provider; return out; } };
+      return tr(obj);
     }
-    $("media_url").value="";$("media_caption").value="";$("media_alt").value="";$("media_provider").value="";
-    renderList("media", state.payload.media, (m,i)=> {
-      if(m.type==="gallery") return `[${i}] gallery: ${m.items.length} items`;
-      if(m.type==="image") return `[${i}] image: ${m.url} alt="${m.alt}"`;
-      return `[${i}] video: ${m.url} ${m.provider?("("+m.provider+")"):""}`;
+    return obj;
+  }
+
+  // Drag & drop
+  let dragKey=null; let dragGhost=null;
+  document.querySelectorAll('.tile[draggable="true"]').forEach(t=>{
+    t.addEventListener('dragstart',e=>{ dragKey=t.dataset.card; e.dataTransfer.setData('text/plain', dragKey); dragKey=t.dataset.card; dragGhost=t.cloneNode(true); dragGhost.classList.add('ghost'); document.body.appendChild(dragGhost); e.dataTransfer.setDragImage(dragGhost, 10, 10); });
+    t.addEventListener('dragend',()=>{ if(dragGhost) dragGhost.remove(); dragGhost=null; dragKey=null; });
+  });
+  DROPZONE.addEventListener('dragover',e=>{ e.preventDefault(); DROPZONE.classList.add('dragover'); });
+  DROPZONE.addEventListener('dragleave',()=>DROPZONE.classList.remove('dragover'));
+  DROPZONE.addEventListener('drop',e=>{
+    e.preventDefault(); DROPZONE.classList.remove('dragover'); const key=e.dataTransfer.getData('text/plain')||dragKey; if(!key) return;
+    if(SINGLETON.has(key)){
+      const existing = DROPZONE.querySelector(`.card[data-def="${key}"]`);
+      if(existing){ existing.scrollIntoView({behavior:'smooth', block:'center'}); existing.classList.add('pulse'); setTimeout(()=>existing.classList.remove('pulse'),600); return; }
+    }
+    addCard(key);
+  });
+
+  function addCard(key){
+    const def = CARD_DEFS[key]; if(!def) return;
+    const card=create('div','card'); card.dataset.def=key;
+    const head=create('div'); head.className='card-head';
+    const h=create('h4'); h.textContent=def.title; const sub=create('div','sub'); sub.textContent=(key.startsWith('root.')?'root':'payload');
+    const ctr=create('div','controls');
+    const up=create('button'); up.className='btn'; up.textContent='↑'; up.onclick=()=>{ const p=card.parentElement; const prev=card.previousElementSibling; if(prev) p.insertBefore(card, prev); };
+    const down=create('button'); down.className='btn'; down.textContent='↓'; down.onclick=()=>{ const next=card.nextElementSibling; if(next) next.after(card); };
+    const rm=create('button'); rm.className='btn danger'; rm.textContent='remove'; rm.onclick=()=>card.remove();
+    ctr.append(up,down,rm);
+    const header=create('div'); header.style.display='flex'; header.style.justifyContent='space-between'; header.style.alignItems='center';
+    header.append(h,ctr);
+    const body=create('div');
+    body.appendChild(def.build(card));
+    card.append(header,body);
+    DROPZONE.appendChild(card);
+  }
+
+  // Quick preset: minimo obbligatorio
+  el('#quick-min').addEventListener('click',()=>{
+    ['root.type','root.title','root.status','root.priority'].forEach(addIfMissing);
+  });
+  function addIfMissing(k){ if(!DROPZONE.querySelector(`.card[data-def="${k}"]`)) addCard(k); }
+
+  // Build JSON
+  el('#build').addEventListener('click',()=>{
+    const res={}; const cards=[...DROPZONE.querySelectorAll('.card')];
+    // defaults
+    let hasType=false, hasTitle=false;
+    cards.forEach(card=>{
+      const key=card.dataset.def; const def=CARD_DEFS[key]; if(!def) return; def.serialize(card, res);
+      if(key==='root.type') hasType=true; if(key==='root.title') hasTitle=true;
     });
-  }
-  function addToGallery(){
-    const idx = parseInt($("gal_index").value,10);
-    const kind=$("gal_item_kind").value;
-    const url=$("gal_item_url").value.trim();
-    const caption=$("gal_item_caption").value.trim();
-    const alt=($("gal_item_alt").value||"").trim();
-    const provider=($("gal_item_provider").value||"").trim();
-    if(!Number.isInteger(idx) || idx<0) return;
-    const g = state.payload.media[idx];
-    if(!g || g.type!=="gallery") return;
-    if(!isURL(url)) return;
-    let item=null;
-    if(kind==="image"){ if(!alt) return; item={type:"image",url,alt}; if(caption) item.caption=caption; }
-    if(kind==="video"){ item={type:"video",url}; if(caption) item.caption=caption; if(provider) item.provider=provider; }
-    if(item){ g.items.push(item); }
-    $("gal_item_url").value="";$("gal_item_caption").value="";$("gal_item_alt").value="";$("gal_item_provider").value="";
-    renderList("media", state.payload.media, (m,i)=> m.type==="gallery" ? `[${i}] gallery: ${m.items.length} items` : `[${i}] ${m.type}: ${m.url}`);
-  }
+    // defaults for status/priority if absent
+    if(!('status' in res)) res.status='draft';
+    if(!('priority' in res)) res.priority=0;
 
-  // --- links
-  function addLink(){
-    const label=$("link_label").value.trim();
-    const url=$("link_url").value.trim();
-    if(!label || !isURL(url)) return;
-    const rel=($("link_rel").value||"").trim();
-    const external=$("link_external").checked;
-    const obj={label,url};
-    if(rel) obj.rel=rel;
-    if(external) obj.external=true;
-    state.payload.links.push(obj);
-    $("link_label").value="";$("link_url").value="";$("link_rel").value="";$("link_external").checked=false;
-    renderList("links", state.payload.links, (l,i)=>`[${i}] ${l.label} → ${l.url} ${l.external?"(ext)":""}`);
-  }
-
-  // --- contacts
-  function addContact(){
-    const name=$("c_name").value.trim(); if(!name) return;
-    const role=($("c_role").value||"").trim();
-    const email=($("c_email").value||"").trim();
-    const url=($("c_url").value||"").trim();
-    const avatar=($("c_avatar").value||"").trim();
-    const c={name};
-    if(role) c.role=role;
-    if(email){ if(!isEmail(email)) return; c.email=email; }
-    if(url){ if(!isURL(url)) return; c.url=url; }
-    if(avatar){ if(!isURL(avatar)) return; c.avatar_url=avatar; }
-    state.payload.contacts.push(c);
-    ["c_name","c_role","c_email","c_url","c_avatar"].forEach(id=>$(id).value="");
-    renderList("contacts", state.payload.contacts, (c,i)=>`[${i}] ${c.name} ${c.role?("— "+c.role):""} ${c.email?("— "+c.email):""}`);
-  }
-
-  // --- event specifics
-  function setVenue(){
-    const name=$("v_name").value.trim(); if(!name) return;
-    const address=$("v_addr").value.trim();
-    const lat=$("v_lat").value, lon=$("v_lon").value, room=$("v_room").value.trim(), map=$("v_map").value.trim();
-    const v={name};
-    if(address) v.address=address;
-    if(lat!=="") v.lat=parseFloat(lat);
-    if(lon!=="") v.lon=parseFloat(lon);
-    if(room) v.room=room;
-    if(map){ if(!isURL(map)) return; v.map_url=map; }
-    state.venue=v;
-  }
-  function removeVenue(){ state.venue=null; }
-
-  function setLivestream(){
-    const en=$("ls_enabled").value;
-    const platform=$("ls_platform").value.trim();
-    const url=$("ls_url").value.trim();
-    const ls={};
-    if(en==="true") ls.enabled=true; else if(en==="false") ls.enabled=false; else return;
-    if(platform) ls.platform=platform;
-    if(url){ if(!isURL(url)) return; ls.url=url; }
-    state.livestream=ls;
-  }
-  function removeLivestream(){ state.livestream=null; }
-
-  function setRegistration(){
-    const req=$("rg_required").value;
-    const url=$("rg_url").value.trim();
-    const dl=$("rg_deadline").value.trim();
-    const r={};
-    if(req==="true") r.required=true; else if(req==="false") r.required=false; else return;
-    if(url){ if(!isURL(url)) return; r.url=url; }
-    if(dl){ if(!isDTss(dl)) return; r.deadline=dl; }
-    state.registration=r;
-  }
-  function removeRegistration(){ state.registration=null; }
-
-  function addAgenda(){
-    const t=$("ag_time").value.trim();
-    const title=$("ag_title").value.trim();
-    if(!/^[0-2]\d:[0-5]\d$/.test(t) || !title) return;
-    const speakers = cleanComma($("ag_speakers").value);
-    const item={time:t,title};
-    if(speakers.length) item.speakers=speakers;
-    state.payload.agenda.push(item);
-    ["ag_time","ag_title","ag_speakers"].forEach(id=>$(id).value="");
-    renderList("agenda", state.payload.agenda, (a,i)=>`[${i}] ${a.time} — ${a.title} ${a.speakers?("("+a.speakers.join(", ")+")"):""}`);
-  }
-
-  function addSpeaker(){
-    const name=$("sp_name").value.trim(); if(!name) return;
-    const aff=$("sp_aff").value.trim();
-    const bio=$("sp_bio").value.trim();
-    const avatar=$("sp_avatar").value.trim();
-    const s={name}; if(aff) s.affiliation=aff; if(bio) s.bio=bio; if(avatar){ if(!isURL(avatar)) return; s.avatar_url=avatar; }
-    state.payload.speakers.push(s);
-    ["sp_name","sp_aff","sp_bio","sp_avatar"].forEach(id=>$(id).value="");
-    renderList("speakers", state.payload.speakers, (s,i)=>`[${i}] ${s.name} ${s.affiliation?("— "+s.affiliation):""}`);
-  }
-
-  function setTickets(){
-    const f=$("tk_free").value;
-    const cap=$("tk_capacity").value, sold=$("tk_sold").value, price=$("tk_price").value;
-    const t={};
-    if(f==="true") t.free=true; else if(f==="false") t.free=false; else return;
-    if(cap!=="") t.capacity=parseInt(cap,10);
-    if(sold!=="") t.sold=parseInt(sold,10);
-    if(price!=="") t.price_eur=parseFloat(price);
-    state.tickets=t;
-  }
-  function removeTickets(){ state.tickets=null; }
-
-  // --- collaboration specifics
-  function addMilestone(){
-    const date=$("ms_date").value.trim(), title=$("ms_title").value.trim(), desc=$("ms_desc").value.trim();
-    if(!isDate(date) || !title) return;
-    const m={date,title}; if(desc) m.desc=desc;
-    state.milestones.push(m);
-    ["ms_date","ms_title","ms_desc"].forEach(id=>$(id).value="");
-    renderList("milestones", state.milestones, (m,i)=>`[${i}] ${m.date} — ${m.title} ${m.desc?("— "+m.desc):""}`);
-  }
-
-  // --- news specifics
-  function addQuote(){
-    const a=$("q_author").value.trim(), t=$("q_text").value.trim();
-    if(!a || !t) return;
-    state.quotes.push({author:a,text:t});
-    ["q_author","q_text"].forEach(id=>$(id).value="");
-    renderList("quotes", state.quotes, (q,i)=>`[${i}] ${q.author}: “${q.text}”`);
-  }
-
-  // --- builder
-  function build(){
-    const obj = { 
-      $schema:"https://json-schema.org/draft/2020-12/schema",
-      $id:"https://example.org/suggestion.schema.json",
-      title:"Suggestion",
-      type:"object" // informativo, non esportato nel payload finale
-    };
-
-    // root suggestion fields
-    const idVal = $("id").value;
-    const type = $("type").value;
-    const title = $("title").value.trim();
-    const summary = $("summary").value.trim();
-    const status = $("status").value;
-    const priority = $("priority").value;
-    const published_at = $("published_at").value.trim();
-
-    const suggestion = {};
-    if(idVal) suggestion.id = parseInt(idVal,10);
-    suggestion.type = type;
-    suggestion.title = title;
-    if(summary) suggestion.summary = summary;
-    if(status) suggestion.status = status; else suggestion.status = "draft";
-    suggestion.priority = (priority==="" ? 0 : clampInt(priority,-10,10,0));
-    if(published_at){ if(!isDTmm(published_at)) return showJSON({error:"published_at non valido. Usa YYYY-MM-DDTHH:mm"}, true); suggestion.published_at = published_at; }
-    if(state.partner_ids.length) suggestion.partner_ids = [...new Set(state.partner_ids)];
-
-    // payload common
-    const payload = {};
-    payload.schema_version = 1;
-
-    const tags = cleanComma($("tags").value);
-    if(tags.length) payload.tags = [...new Set(tags)];
-
-    const seo = {};
-    const s_slug=$("seo_slug").value.trim(), s_kws=cleanComma($("seo_keywords").value), s_img=$("seo_image").value.trim();
-    if(s_slug){ if(s_slug.length<3 || s_slug.length>80) return showJSON({error:"seo.slug lunghezza non valida"}, true); seo.slug=s_slug; }
-    if(s_kws.length) seo.keywords=[...new Set(s_kws)];
-    if(s_img){ if(!isURL(s_img)) return showJSON({error:"seo.image URL non valido"}, true); seo.image=s_img; }
-    if(Object.keys(seo).length) payload.seo=seo;
-
-    if(state.payload.attachments.length) payload.attachments = structuredClone(state.payload.attachments);
-    if(state.payload.media.length) payload.media = structuredClone(state.payload.media);
-    if(state.payload.links.length) payload.links = structuredClone(state.payload.links);
-    if(state.payload.contacts.length) payload.contacts = structuredClone(state.payload.contacts);
-    const notes = $("notes_md").value.trim(); if(notes) payload.notes_md = notes;
-
-    // payload type-specific
-    if(type==="event"){
-      if($("ev_start").value){ if(!isDTss($("ev_start").value)) return showJSON({error:"event.start_at non valido"}, true); payload.start_at=$("ev_start").value.trim(); }
-      if($("ev_end").value){ if(!isDTss($("ev_end").value)) return showJSON({error:"event.end_at non valido"}, true); payload.end_at=$("ev_end").value.trim(); }
-      const tz=$("ev_tz").value.trim(); if(tz){ if(!isTZ(tz)) return showJSON({error:"event.timezone non valido"}, true); payload.timezone=tz; }
-      if(state.venue) payload.venue = structuredClone(state.venue);
-      if($("ev_online").value){ payload.online = $("ev_online").value==="true"; }
-      if(state.livestream) payload.livestream = structuredClone(state.livestream);
-      if(state.registration) payload.registration = structuredClone(state.registration);
-      if(state.payload.agenda.length) payload.agenda = structuredClone(state.payload.agenda);
-      if(state.payload.speakers.length) payload.speakers = structuredClone(state.payload.speakers);
-      if(state.tickets) payload.tickets = structuredClone(state.tickets);
-    } else if(type==="collaboration"){
-      const goal=$("cl_goal").value.trim(); if(goal) payload.goal=goal;
-      const wps=cleanComma($("cl_wps").value); if(wps.length) payload.work_packages=[...new Set(wps)];
-      const tline={};
-      const tstart=$("cl_tl_start").value.trim(), tend=$("cl_tl_end").value.trim();
-      if(tstart){ if(!isDate(tstart)) return showJSON({error:"timeline.start non valido"}, true); tline.start=tstart; }
-      if(tend){ if(!isDate(tend)) return showJSON({error:"timeline.end non valido"}, true); tline.end=tend; }
-      if(state.milestones.length) tline.milestones=structuredClone(state.milestones);
-      if(Object.keys(tline).length) payload.timeline=tline;
-
-      const req={};
-      const rtech=cleanComma($("rq_tech").value), rntech=cleanComma($("rq_nontech").value);
-      if(rtech.length || rntech.length){
-        req.tech = rtech.length?[...new Set(rtech)]:[];
-        req.non_tech = rntech.length?[...new Set(rntech)]:[];
-        payload.requirements = req;
-      }
-
-      const fd={};
-      const fds=$("fd_status").value;
-      const fsrc=cleanComma($("fd_sources").value);
-      if(fds) fd.status=fds;
-      if(fsrc.length) fd.sources=[...new Set(fsrc)];
-      if(Object.keys(fd).length) payload.funding=fd;
-
-    } else if(type==="announcement"){
-      const ch=linesToArray($("an_changelog").value);
-      const br=linesToArray($("an_breaking").value);
-      const docs=$("an_docs").value.trim();
-      if(ch.length) payload.changelog=ch;
-      if(br.length) payload.breaking_changes=br;
-      if(docs){ if(!isURL(docs)) return showJSON({error:"docs_url non valida"}, true); payload.docs_url=docs; }
-      const rtype=$("an_roll_type").value, rpct=$("an_roll_pct").value;
-      if(rtype || rpct!==""){
-        const ro={}; if(rtype) ro.type=rtype;
-        if(rpct!==""){ const p = clampInt(rpct,0,100,0); ro.percent=p; }
-        payload.rollout=ro;
-      }
-    } else if(type==="news"){
-      const body=$("nw_body").value.trim(); if(body) payload.body_md=body;
-      if(state.quotes.length) payload.quotes = structuredClone(state.quotes);
-      // media e seo già nella parte comune
+    const errors=[];
+    if(!hasType) errors.push('type mancante');
+    if(!hasTitle) errors.push('title mancante');
+    if('published_at' in res){ if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(res.published_at)) errors.push('published_at non conforme YYYY-MM-DDTHH:mm'); }
+    if(res.payload && ('start_at' in res.payload || 'end_at' in res.payload)){
+      const chk = v=>/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(v);
+      if(res.payload.start_at && !chk(res.payload.start_at)) errors.push('start_at non conforme YYYY-MM-DDTHH:mm:ss');
+      if(res.payload.end_at && !chk(res.payload.end_at)) errors.push('end_at non conforme YYYY-MM-DDTHH:mm:ss');
     }
 
-    suggestion.payload = payload;
+    if(errors.length){ setPill('error'); el('#out').textContent = JSON.stringify({errors, draft:res}, null, 2); return; }
 
-    // final checks required
-    if(!suggestion.type) return showJSON({error:"type obbligatorio"}, true);
-    if(!suggestion.title || suggestion.title.length<1 || suggestion.title.length>140) return showJSON({error:"title [1..140] obbligatorio"}, true);
+    setPill('ok'); el('#out').textContent = JSON.stringify(res, null, 2);
+  });
 
-    // publish
-    showJSON(suggestion,false);
-  }
+  // Copy
+  el('#copy').addEventListener('click',async()=>{
+    const txt=el('#out').textContent; await navigator.clipboard.writeText(txt); setPill('copied'); setTimeout(()=>setPill('idle'),1000);
+  });
+  // Download
+  el('#download').addEventListener('click',()=>{
+    const blob=new Blob([el('#out').textContent||'{}'],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=create('a'); a.href=url; a.download='suggestion.payload.json'; a.click(); URL.revokeObjectURL(url);
+  });
+  // Clear
+  el('#clear').addEventListener('click',()=>{ DROPZONE.innerHTML=''; el('#out').textContent='{}'; setPill('idle'); });
 
-  function linesToArray(text){
-    return (text||"").split("\n").map(x=>x.trim()).filter(Boolean);
-  }
-
-  function showJSON(obj, isError){
-    const json = JSON.stringify(obj, null, 2);
-    $("out").textContent = json;
-    $("out").scrollTop = 0;
-    // syntax color
-    $("out").innerHTML = $("out").innerHTML
-      .replace(/"(.*?)"(?=\s*:)/g,'<span class="k">"$1"</span>')
-      .replace(/: (".*?"|\d+|true|false|null)(,?)/g,': <span class="v">$1</span>$2');
-    if(isError) markErr([0]); // evidenzia riga
-  }
-
-  // --- io helpers
-  function copyJSON(){
-    const txt = $("out").textContent;
-    navigator.clipboard.writeText(txt);
-  }
-  function downloadJSON(){
-    const blob = new Blob([$("out").textContent], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "suggestion.json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
-
-  function resetAll(){
-    document.querySelectorAll("input, textarea, select").forEach(el=>{
-      if(el.type==="checkbox") el.checked=false; else el.value="";
-    });
-    // reset state arrays/objects
-    state.partner_ids=[]; state.payload.attachments=[]; state.payload.media=[];
-    state.payload.links=[]; state.payload.contacts=[]; state.payload.agenda=[];
-    state.payload.speakers=[]; state.milestones=[]; state.quotes=[];
-    state.venue=null; state.registration=null; state.livestream=null; state.tickets=null;
-    ["partner_list","attachments","media","links","contacts","agenda","speakers","milestones","quotes"].forEach(id=>$(id).innerHTML="");
-    showJSON({},false);
-  }
-
-  function loadSample(){
-    resetAll();
-    $("type").value="event";
-    $("title").value="Seminario su AI e monitoraggio marino";
-    $("summary").value="Panoramica sui metodi moderni per il rilevamento automatico in mare.";
-    $("status").value="draft";
-    $("priority").value="2";
-    $("published_at").value="2025-08-18T10:00";
-    $("tags").value="ai, marine, cv";
-    $("notes_md").value="Note interne.";
-    $("seo_slug").value="seminario-ai-monitoraggio-marino";
-    $("seo_keywords").value="ai,marine,seminar";
-    $("seo_image").value="https://example.org/hero.jpg";
-    $("pid_val").value="12"; addPartner();
-    $("pid_val").value="34"; addPartner();
-
-    // media
-    $("media_kind").value="image"; $("media_url").value="https://example.org/img1.jpg"; $("media_alt").value="locandina"; $("media_caption").value="Locandina"; addMedia();
-    $("media_kind").value="gallery"; addMedia();
-    $("gal_index").value="1"; $("gal_item_kind").value="image"; $("gal_item_url").value="https://example.org/pic.jpg"; $("gal_item_alt").value="sala"; $("gal_item_caption").value="La sala"; addToGallery();
-
-    // link
-    $("link_label").value="Dettagli"; $("link_url").value="https://example.org/info"; $("link_external").checked=true; addLink();
-
-    // contact
-    $("c_name").value="Dr. Rossi"; $("c_email").value="rossi@example.org"; addContact();
-
-    // event specifics
-    $("ev_start").value="2025-09-01T09:00:00";
-    $("ev_end").value="2025-09-01T12:30:00";
-    $("ev_tz").value="Europe/Rome";
-    $("ev_online").value="false";
-
-    // venue
-    $("v_name").value="Aula Magna"; $("v_addr").value="Via Roma 1"; $("v_lat").value="41.9"; $("v_lon").value="12.5"; $("v_room").value="A1"; $("v_map").value="https://maps.example.org"; setVenue();
-
-    // registration
-    $("rg_required").value="true"; $("rg_url").value="https://example.org/iscrizione"; $("rg_deadline").value="2025-08-31T23:59:59"; setRegistration();
-
-    // agenda
-    $("ag_time").value="09:00"; $("ag_title").value="Apertura"; $("ag_speakers").value="Rossi, Bianchi"; addAgenda();
-    $("ag_time").value="10:00"; $("ag_title").value="Keynote"; $("ag_speakers").value="Verdi"; addAgenda();
-
-    // speakers
-    $("sp_name").value="L. Verdi"; $("sp_aff").value="UniRoma"; addSpeaker();
-
-    // tickets
-    $("tk_free").value="true"; $("tk_capacity").value="150"; setTickets();
-
-    build();
-  }
-
-  // init
-  showJSON({},false);
 </script>
 </body>
 </html>
